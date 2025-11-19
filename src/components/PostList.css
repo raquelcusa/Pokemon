@@ -1,0 +1,158 @@
+:root {
+  /* Colors basats en el teu disseny */
+  --bg-dark: #f5f5f5;
+  --card-gray: #ffffff; /* Gris de la part superior de la carta */
+  --card-footer: #ffffff; /* Gris fosc de baix de la carta */
+  --text-namePoke: #5d5d5d;
+  --text-subtle: #595959;
+  --input-bg: #757575;
+  --nav-bg: #4a4a4a;
+  --active-btn: #9c9c9c;
+}
+
+/* Reset bàsic */
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark); /* Fons de tota la app */
+}
+
+.pokedex-container {
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+  padding: 20px;
+  padding-bottom: 100px; /* Espai pel menú flotant */
+  box-sizing: border-box;
+  color: var(--text-white);
+}
+
+/* --- Capçalera --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  background: none;
+  border: none;
+  color: var(--text-white);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* --- Buscador --- */
+.search-wrapper {
+  margin-bottom: 15px;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: none;
+  background-color: var(--input-bg);
+  color: white;
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  box-sizing: border-box; /* Important perquè no surti del marge */
+  outline: none;
+}
+
+.search-bar::placeholder {
+  color: #d1d1d1;
+}
+
+/* --- Filtres --- */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.filter-btn {
+  flex: 1;
+  background-color: #424242;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 15px;
+  color: white;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+/* --- GRID DE POKÉMONS --- */
+.pokemon-grid {
+  display: grid;
+  /* Això fa la màgia: columnes automàtiques (mínim 90px ample) */
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.pokemon-card {
+  background-color: var(--card-gray);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 3 / 4; /* Proporció vertical de la targeta */
+  position: relative;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.card-image-container {
+    margin-top: -12px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pokemon-img {
+width: 90px; /* Mida de la icona */
+  height: 90px;
+  image-rendering: pixelated; /* Si fas servir icones pixel art, això fa que es vegin nítides */
+}
+
+.card-footer {
+  background-color: var(--card-footer);
+  padding: 1px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 45px;
+}
+
+.pokemon-id {
+  font-size: 0.65rem;
+  color: var(--text-subtle);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.pokemon-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize; /* Primera lletra majúscula */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
