@@ -1,5 +1,5 @@
 :root {
-  /* Colors basats en el teu disseny */
+  /* Colors basats en el disseny */
   --bg-dark: #f5f5f5;
   --card-gray: #ffffff; /* Gris de la part superior de la carta */
   --card-footer: #ffffff; /* Gris fosc de baix de la carta */
@@ -27,7 +27,7 @@ body, html {
   color: var(--text-white);
 }
 
-/* --- Capçalera --- */
+/* Capçalera */
 .header {
   display: flex;
   align-items: center;
@@ -53,7 +53,7 @@ body, html {
   margin: 0;
 }
 
-/* --- Buscador --- */
+/* Buscador */
 .search-wrapper {
   margin-bottom: 15px;
 }
@@ -75,7 +75,7 @@ body, html {
   color: #d1d1d1;
 }
 
-/* --- Filtres --- */
+/* Filtres  */
 .filters {
   display: flex;
   gap: 10px;
@@ -96,7 +96,7 @@ body, html {
   cursor: pointer;
 }
 
-/* --- GRID DE POKÉMONS --- */
+/*   GRID DE POKÉMONS */
 .pokemon-grid {
   display: grid;
   /* Això fa la màgia: columnes automàtiques (mínim 90px ample) */

@@ -30,24 +30,24 @@ function PostList() {
 
     return (
     <div className="pokedex-container">
-      {/* --- Capçalera i Títol --- */}
+      {/* Capçalera i Títol */}
       <header className="header">
         <button className="back-button">‹</button>
         <h1 className="title">Pokédex</h1>
       </header>
 
-      {/* --- Buscador --- */}
+      {/* Buscador */}
       <div className="search-wrapper">
         <input type="text" className="search-bar" placeholder="Buscar" />
       </div>
 
-      {/* --- Filtres --- */}
+      {/* Filtres */}
       <div className="filters">
         <button className="filter-btn">Tipos <span>▼</span></button>
         <button className="filter-btn">Ordenar por <span>▼</span></button>
       </div>
 
-      {/* --- Grid de Pokémons (Substitueix el ul/li) --- */}
+      {/* Grid de Pokémons (Substitueix el ul/li) */}
       <div className="pokemon-grid">
         {pokemonList.map((p) => (
           <div key={p.id} className="pokemon-card">
@@ -61,13 +61,7 @@ function PostList() {
               <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
               <span className="pokemon-name">{p.name}</span>
               
-              {/* He comentat els tipus perquè al disseny no es veuen a la targeta, 
-                  però pots descomentar-ho si vols */}
-              {/* <div className="types">
-                {p.types.map((type, i) => (
-                  <span key={i} className={`type ${type}`}>{type}</span>
-                ))}
-              </div> */}
+             
             </div>
           </div>
         ))}
