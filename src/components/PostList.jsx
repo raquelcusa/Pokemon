@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import "./PostList.css";
+import{useParams, Link} from "react-router-dom";
+import PostDetail from "./PostDetail";  
 
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
@@ -49,29 +51,27 @@ function PostList() {
 
       {/* Grid de Pokémons (Substitueix el ul/li) */}
       <div className="pokemon-grid">
+
         {pokemonList.map((p) => (
-          <div key={p.id} className="pokemon-card">
-            
+          <Link to={`/PostDetail`} key={p.id} className="pokemon-card-link">
+          <div className="pokemon-card">
             <div className="card-image-container">
               <img src={p.sprite} alt={p.name} className="pokemon-img" />
             </div>
 
             <div className="card-footer">
-              {/* Format per posar zeros a l'esquerra (ex: 001) */}
               <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
               <span className="pokemon-name">{p.name}</span>
-              
-             
             </div>
           </div>
+        </Link>
+          
         ))}
       </div>
-
-      
     </div>
   );
 
-  
+
 }
 
 export default PostList;
