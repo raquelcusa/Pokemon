@@ -12,11 +12,10 @@ function App() {
     
     <div className="App">
       <Header />
-      <PostList/>
-      {/* <Routes>
-        <Route path="/" element={<PostList/>}/> */}
-        {/* <Route path="/post/:id" element={<PostDetail/>}/> */}
-      {/* </Routes> */}
+      <Routes>
+        <Route path="/" element={<PostList/>}/>
+        <Route path="/PostDetail/:id" element={<PostDetail/>}/>
+       </Routes>
       
       <Footer />
     </div>
