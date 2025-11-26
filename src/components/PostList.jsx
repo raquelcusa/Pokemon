@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./PostList.css";
-import{ Link} from "react-router-dom";
+import{useParams, Link} from "react-router-dom";
+import PostDetail from "./PostDetail";  
 
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
@@ -52,7 +53,7 @@ function PostList() {
       <div className="pokemon-grid">
 
         {pokemonList.map((p) => (
-          <Link to={`/PostDetail/${p.id}`} key={p.id} className="pokemon-card-link">
+          <Link to={`/PostDetail`} key={p.id} className="pokemon-card-link">
           <div className="pokemon-card">
             <div className="card-image-container">
               <img src={p.sprite} alt={p.name} className="pokemon-img" />

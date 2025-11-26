@@ -3,44 +3,28 @@ import{useParams, Link} from "react-router-dom";
 
 function PostDetail()
 {
-    const {id}= useParams();
-    const [post, setPokemonPost]= useState(null);
-    const [species, setSpecies] = useState(null);
-    const [evolution, setEvolution] = useState([]);
+    // const {id}= useParams();
+    // const [post, setPost]=useSate(null);
 
-    useEffect(()=> {
+    // useEffect(()=> {
 
-        fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        .then(res => res.json())
-        .then(data=> setPokemonPost(data));
-    }, [id]);
- 
-    if(!post)return <div className="loading">Cargando...</div>;
+    //     fetch('https://pokeapi.co/api/v2/pokemon?limit=200')
+    //     .then(res => res.json())
+    //     .then(data=> setPost(data));
+    // }, [id]);
+
+    // if(!post)return <div>Carregant...</div>;
 
     return (
-        <div className="post-detail-container">
+        // <div className="post-detail-container">
 
-            <Link to="/" className="back-button">← Volver</Link>
+        // <Link to ="/">Tornar enrere</Link>
+        // <h1>{post.title}</h1>
+        // <p>{post.body}</p>
+        // <p><strong>ID del Post:</strong>{post.id}</p>
+        // </div>
 
-            <div className="detail-card">
-
-                <img 
-                    src={post.sprites.other["official-artwork"].front_default} 
-                    alt={post.name} 
-                    className="detail-img"
-                />
-                <h1>{post.name}</h1>
-                <p><strong>ID:</strong> {post.id}</p>
-            
-                    <div className="info">
-                        <p><strong>PESO:</strong> {post.weight} <p>Kg</p></p>
-                        <p><strong>ALTURA: </strong> {post.height} <p>m</p> </p>
-                        {/* <p><strong>CATEGORIA:</strong> {post.type}</p>
-                        <p><strong>HABILIDAD:</strong> {post.ability}</p> */}
-                    </div>
-
-                </div>
-        </div>
+        <p>Hola bb</p>
     );
 }
 
