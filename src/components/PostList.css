@@ -1,8 +1,7 @@
 :root {
-  /* Colors basats en el disseny */
   --bg-dark: #f5f5f5;
-  --card-gray: #ffffff; /* Gris de la part superior de la carta */
-  --card-footer: #ffffff; /* Gris fosc de baix de la carta */
+  --card-gray: #ffffff;
+  --card-footer: #ffffff;
   --text-namePoke: #5d5d5d;
   --text-subtle: #595959;
   --input-bg: #757575;
@@ -14,7 +13,7 @@
 body, html {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-dark); /* Fons de tota la app */
+  background-color: var(--bg-dark);
 }
 
 .pokedex-container {
@@ -22,35 +21,46 @@ body, html {
   background-color: var(--bg-dark);
   min-height: 100vh;
   padding: 20px;
-  padding-bottom: 100px; /* Espai pel menú flotant */
+  padding-bottom: 100px;
   box-sizing: border-box;
   color: var(--text-white);
 }
 
-/* Capçalera */
-.header {
+/* --- CABECERA CENTRADA --- */
+.detail-header {
   display: flex;
+  justify-content: center; 
   align-items: center;
-  justify-content: center;
-  position: relative;
+  position: relative;      
   margin-bottom: 20px;
+  padding-top: 10px;
 }
 
-.back-button {
-  position: absolute;
-  left: 0;
-  background: none;
+
+.back-btn {
+  position: absolute; 
+  left: 0;            
+  background: transparent;
   border: none;
-  color: var(--text-white);
-  font-size: 2rem;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.back-icon2 {
+  width: 48px;
+  height: auto;
+  margin-left:-8px;
+  margin-top:-40px;
+  
 }
 
 .title {
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
+  color: #333; /* Aseguramos color oscuro */
 }
 
 /* Buscador */
@@ -62,20 +72,20 @@ body, html {
   width: 100%;
   padding: 12px 20px;
   border-radius: 30px;
-  border: none;
-  background-color: var(--input-bg);
-  color: white;
+  border: 2px solid #393939;
+  background-color: #ECECEC;
+  color: #333; /* Texto negro */
   font-size: 1rem;
   font-family: "Inter", sans-serif;
-  box-sizing: border-box; /* Important perquè no surti del marge */
+  box-sizing: border-box; 
   outline: none;
 }
 
 .search-bar::placeholder {
-  color: #d1d1d1;
+  color: #999;
 }
 
-/* Filtres  */
+/* Filtros */
 .filters {
   display: flex;
   gap: 10px;
@@ -96,12 +106,16 @@ body, html {
   cursor: pointer;
 }
 
-/*   GRID DE POKÉMONS */
+/* GRID DE POKÉMONS */
 .pokemon-grid {
   display: grid;
-  /* Això fa la màgia: columnes automàtiques (mínim 90px ample) */
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   gap: 12px;
+}
+
+.pokemon-card-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 .pokemon-card {
@@ -110,13 +124,13 @@ body, html {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  aspect-ratio: 3 / 4; /* Proporció vertical de la targeta */
+  aspect-ratio: 3 / 4; 
   position: relative;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .card-image-container {
-    margin-top: -12px;
+  margin-top: -12px;
   flex-grow: 1;
   display: flex;
   align-items: center;
@@ -124,9 +138,9 @@ body, html {
 }
 
 .pokemon-img {
-width: 90px; /* Mida de la icona */
+  width: 90px;
   height: 90px;
-  image-rendering: pixelated; /* Si fas servir icones pixel art, això fa que es vegin nítides */
+  image-rendering: pixelated; 
 }
 
 .card-footer {
@@ -149,10 +163,9 @@ width: 90px; /* Mida de la icona */
 .pokemon-name {
   font-size: 0.8rem;
   font-weight: 600;
-  text-transform: capitalize; /* Primera lletra majúscula */
+  text-transform: capitalize; 
+  color: var(--text-namePoke);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-
