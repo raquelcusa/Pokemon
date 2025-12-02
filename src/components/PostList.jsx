@@ -3,6 +3,7 @@ import "./PostList.css";
 import{ Link} from "react-router-dom";
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'
 
+
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
 
@@ -33,7 +34,7 @@ function PostList() {
     return (
     <div className="pokedex-container">
       {/* Capçalera i Títol */}
-           <header className="detail-header">
+           <header className="detail-header2">
              <Link to="/" className="back-btn">
                <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
              </Link>

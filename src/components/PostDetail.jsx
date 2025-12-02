@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useFavorites } from '../context/FavoritesContext';
 import "./PostDetail.css";
 // Ajusta estas rutas si es necesario según tu estructura exacta de carpetas
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
 import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
+import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
+import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
 
 const TYPE_COLORS = {
   grass: "#3FA129",
@@ -53,7 +56,7 @@ function PostDetail() {
     };
     fetchData();
   }, [id]);
-
+ const { toggleFavorite, isFavorite } = useFavorites();
   if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
 
   // --- Procesamiento de datos ---
@@ -68,15 +71,26 @@ function PostDetail() {
   const ability = pokemon.abilities[0]?.ability.name;
   const mainType = pokemon.types[0].type.name;
   const backgroundColor = TYPE_COLORS[mainType] || "#9FA19F";
+ 
 
   return (
     <div className="detail-container" style={{ backgroundColor: backgroundColor }}>
       
       {/* Cabecera */}
       <header className="detail-header">
-        <Link to="/" className="back-btn">
-          <img src={ICONO_ATRAS} alt="Volver" className="back-icon" />
+        <Link to="/" className="back-icon">
+          <img src={ICONO_ATRAS} alt="Volver"/>
         </Link>
+         <button 
+            onClick={() => toggleFavorite(pokemon)}    
+            style={{ 
+              background: 'transparent', 
+              border: 'none',            
+                  }}
+        >
+            {isFavorite(pokemon.id) ?  <img src={HEARTFULL} alt="Favorito" className="fav-icon" />: <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />}
+        </button>
+
       </header>
 
       {/* Imagen Grande */}

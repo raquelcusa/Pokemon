@@ -13,25 +13,28 @@
 /* Cabecera */
 .detail-header {
   padding: 20px 20px 0 20px;
-  display: flex;
-  align-items: center;
   z-index: 10;
-}
 
-.back-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-icon {
   width: 48px;
   height: auto;
-  margin-left:10px;
+  
   margin-top:40px;
+  cursor:pointer;
+}
+.fav-icon{
+  width: 48px;
+  height: auto;
+
+  margin-top:40px;
+  cursor:pointer;
 }
 
 /* Contenedor de la Imagen */
