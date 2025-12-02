@@ -33,14 +33,15 @@ function PostList() {
     return (
     <div className="pokedex-container">
       {/* Capçalera i Títol */}
-           <header className="detail-header">
-             <Link to="/" className="back-btn">
-               <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
-             </Link>
-             <h1 className="title">Pokédex</h1>
-          </header>
-       
-     
+      <header className="header">
+         <img 
+                        src={ICONO_ATRAS} 
+                        alt="Descripción de la foto" 
+                        style={{ width: '48px', height: 'auto' }} 
+        />
+        
+        <h1 className="title">Pokédex</h1>
+      </header>
 
       {/* Buscador */}
       <div className="search-wrapper">
