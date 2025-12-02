@@ -10,22 +10,22 @@ function Footer() {
   return (
     <nav className="bottom-nav">
       
-      {/* Botón Home */}
+      {/* Botó Home */}
       <Link to="/home" className="nav-item">
         <img src={ICONO_HOME} alt="Home" className="nav-icon" />
       </Link>
 
-      {/* Botón Búsqueda */}
+      {/* Botó Cerca */}
       <Link to="/" className="nav-item">
         <img src={ICONO_BUSQUEDA} alt="Buscar" className="nav-icon" />
       </Link>
 
-      {/* Botón Pokédex (Activo) */}
+      {/* Botó Pokédex (Actiu) */}
       <Link to="/cards" className="nav-item">
         <img src={ICONO_POKEDEX} alt="Pokedex" className="nav-icon" />
       </Link>
 
-      {/* Botón Favoritos */}
+      {/* Botó Favorits */}
       <Link to="/favoritos" className="nav-item">
         <img src={ICONO_FAVORITOS} alt="Favoritos" className="nav-icon" />
       </Link>

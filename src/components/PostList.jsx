@@ -1,11 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./PostList.css";
-import{ Link} from "react-router-dom";
-import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'
+import { Link } from "react-router-dom";
+import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; // Asegúrate de que la ruta sea correcta
 
+// Diccionari de colors i traduccions per als tipus
+const TYPE_CONFIG = {
+  normal: { name: "Normal", color: "#A8A77A" },
+  fire: { name: "Fuego", color: "#E62829" },
+  water: { name: "Agua", color: "#2980EF" },
+  electric: { name: "Eléctrico", color: "#FAC000" },
+  grass: { name: "Planta", color: "#3FA129" },
+  ice: { name: "Hielo", color: "#3FD8FF" },
+  fighting: { name: "Lucha", color: "#FF8000" },
+  poison: { name: "Veneno", color: "#8F41CB" },
+  ground: { name: "Tierra", color: "#915121" },
+  flying: { name: "Volador", color: "#81B9EF" },
+  psychic: { name: "Psíquico", color: "#EF4179" },
+  bug: { name: "Bicho", color: "#91A119" },
+  rock: { name: "Roca", color: "#AFA981" },
+  ghost: { name: "Fantasma", color: "#704170" },
+  dragon: { name: "Dragón", color: "#5061E1" },
+  steel: { name: "Acero", color: "#60A1B8" },
+  dark: { name: "Siniestro", color: "#50413F" },
+  fairy: { name: "Hada", color: "#EF71EF" },
+};
 
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Estats per Filtres i Orde
+  const [selectedType, setSelectedType] = useState(null); // null significa "todos"
+  const [sortOrder, setSortOrder] = useState("id_asc"); // id_asc, id_desc, name_asc, name_desc
+  
+  // Estats per visibilitat de Modals
+  const [showTypeModal, setShowTypeModal] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
 
   useEffect(() => {
     fetch("https://pokeapi.co/api/v2/pokemon?limit=200")
@@ -18,10 +48,8 @@ function PostList() {
               .then((details) => ({
                 id: details.id,
                 name: details.name,
-                sprite:
-                  details.sprites.versions["generation-viii"].icons
-                    .front_default,
-                types: details.types.map((t) => t.type.name), // array of 1 or 2 types
+                sprite: details.sprites.versions["generation-viii"].icons.front_default || details.sprites.front_default,
+                types: details.types.map((t) => t.type.name),
               }))
           )
         );
@@ -30,53 +58,138 @@ function PostList() {
       .catch((err) => console.error(err));
   }, []);
 
+  // Lògica de Filtrat i Ordenació 
+  const filteredAndSortedList = useMemo(() => {
+    let result = [...pokemonList];
 
-    return (
+    // 1. Buscador (Search)
+    if (searchTerm) {
+      result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    // 2. Filtrar per Tipus
+    if (selectedType) {
+      result = result.filter(p => p.types.includes(selectedType));
+    }
+
+    // 3. Ordenar
+    result.sort((a, b) => {
+      switch (sortOrder) {
+        case "id_asc": return a.id - b.id;
+        case "id_desc": return b.id - a.id;
+        case "name_asc": return a.name.localeCompare(b.name);
+        case "name_desc": return b.name.localeCompare(a.name);
+        default: return a.id - b.id;
+      }
+    });
+
+    return result;
+  }, [pokemonList, searchTerm, selectedType, sortOrder]);
+
+  return (
     <div className="pokedex-container">
-      {/* Capçalera i Títol */}
-           <header className="detail-header2">
-             <Link to="/" className="back-btn">
-               <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
-             </Link>
-             <h1 className="title">Pokédex</h1>
-          </header>
-       
-     
+      {/* Capçalera */}
+      <header className="detail-header2">
+        <Link to="/" className="back-btn">
+          <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
+        </Link>
+        <h1 className="title">Pokédex</h1>
+      </header>
 
       {/* Buscador */}
       <div className="search-wrapper">
-        <input type="text" className="search-bar" placeholder="Buscar" />
+        <input 
+          type="text" 
+          className="search-bar" 
+          placeholder="Buscar" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
-      {/* Filtres */}
+      {/* Filtres Botons */}
       <div className="filters">
-        <button className="filter-btn">Tipos <span>▼</span></button>
-        <button className="filter-btn">Ordenar por <span>▼</span></button>
+        <button className="filter-btn" onClick={() => setShowTypeModal(true)}>
+          {selectedType ? TYPE_CONFIG[selectedType].name : "Tipos"} <span>▼</span>
+        </button>
+        <button className="filter-btn" onClick={() => setShowSortModal(true)}>
+          Ordenar por <span>▼</span>
+        </button>
       </div>
 
-      {/* Grid de Pokémons (Substitueix el ul/li) */}
+      {/* Grid de Pokémons */}
       <div className="pokemon-grid">
-
-        {pokemonList.map((p) => (
+        {filteredAndSortedList.map((p) => (
           <Link to={`/PostDetail/${p.id}`} key={p.id} className="pokemon-card-link">
-          <div className="pokemon-card">
-            <div className="card-image-container">
-              <img src={p.sprite} alt={p.name} className="pokemon-img" />
+            <div className="pokemon-card">
+              <div className="card-image-container">
+                <img src={p.sprite} alt={p.name} className="pokemon-img" />
+              </div>
+              <div className="card-footer">
+                <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
+                <span className="pokemon-name">{p.name}</span>
+              </div>
             </div>
-
-            <div className="card-footer">
-              <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
-              <span className="pokemon-name">{p.name}</span>
-            </div>
-          </div>
-        </Link>
-          
+          </Link>
         ))}
       </div>
+
+      {/* --- MODAL DE TIPUS --- */}
+      {showTypeModal && (
+        <div className="modal-overlay" onClick={() => setShowTypeModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Seleccione el tipo</h3>
+            <div className="modal-options-grid">
+              <button 
+                className="type-option-btn" 
+                style={{ background: "#333" }} 
+                onClick={() => { setSelectedType(null); setShowTypeModal(false); }}
+              >
+                Todos
+              </button>
+              {Object.keys(TYPE_CONFIG).map((typeKey) => (
+                <button
+                  key={typeKey}
+                  className="type-option-btn"
+                  style={{ backgroundColor: TYPE_CONFIG[typeKey].color }}
+                  onClick={() => {
+                    setSelectedType(typeKey);
+                    setShowTypeModal(false);
+                  }}
+                >
+                  {TYPE_CONFIG[typeKey].name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL D'ORDENAR --- */}
+      {showSortModal && (
+        <div className="modal-overlay" onClick={() => setShowSortModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Seleccione el orden</h3>
+            <div className="modal-options-list">
+              <button className="sort-option-btn" onClick={() => { setSortOrder("id_asc"); setShowSortModal(false); }}>
+                Nº Ascendente
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("id_desc"); setShowSortModal(false); }}>
+                Nº Descendente
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("name_asc"); setShowSortModal(false); }}>
+                A-Z
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("name_desc"); setShowSortModal(false); }}>
+                Z-A
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
-
-
 }
 
 export default PostList;

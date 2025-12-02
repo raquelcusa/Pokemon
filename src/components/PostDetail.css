@@ -1,4 +1,4 @@
-/* Aseguramos que el contenedor ocupe TODA la pantalla */
+/* Assegurem que el contenidor ocupi TOTA la pantalla */
 .detail-container {
   min-height: 100vh;
   width: 100%;
@@ -10,7 +10,7 @@
   transition: background-color 0.4s ease;
 }
 
-/* Cabecera */
+/* Capçalera */
 .detail-header {
   padding: 20px 20px 0 20px;
   z-index: 10;
@@ -37,14 +37,14 @@
   cursor:pointer;
 }
 
-/* Contenedor de la Imagen */
+/* Contenidor de la Imatge */
 .image-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   height: 220px; 
   z-index: 5;
-  margin-bottom: -50px; /* Hundimos la imagen para que pise la tarjeta blanca */
+  margin-bottom: -50px; /* Enfonsem la imatge perquè trapitgi la targeta blanca */
 }
 
 .main-pokemon-img {
@@ -55,11 +55,10 @@
   z-index: 5;
 }
 
-/* --- TARJETA BLANCA (El panel principal) --- */
+/* --- TARGETA BLANCA (El panell principal) --- */
 .detail-card-panel {
   background-color: white;
   
-  /* 1. ANCHURA: Usamos porcentaje para que no toque los bordes en móvil */
   width: 92%;           
   max-width: 80%;
   

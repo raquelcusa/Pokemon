@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useFavorites } from '../context/FavoritesContext';
 import "./PostDetail.css";
-// Ajusta estas rutas si es necesario según tu estructura exacta de carpetas
+
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
 import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
@@ -59,7 +59,7 @@ function PostDetail() {
  const { toggleFavorite, isFavorite } = useFavorites();
   if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
 
-  // --- Procesamiento de datos ---
+  // --- Processament de dades ---
   const descriptionEntry = species.flavor_text_entries.find((e) => e.language.name === "es");
   const description = descriptionEntry 
     ? descriptionEntry.flavor_text.replace(/[\n\f]/g, " ") 
@@ -76,12 +76,12 @@ function PostDetail() {
   return (
     <div className="detail-container" style={{ backgroundColor: backgroundColor }}>
       
-      {/* Cabecera */}
+      {/* Capçalera */}
       <header className="detail-header">
         <Link to="/" className="back-icon">
           <img src={ICONO_ATRAS} alt="Volver"/>
         </Link>
-         <button 
+        <button 
             onClick={() => toggleFavorite(pokemon)}    
             style={{ 
               background: 'transparent', 
@@ -93,7 +93,7 @@ function PostDetail() {
 
       </header>
 
-      {/* Imagen Grande */}
+      {/* Imatge Gran */}
       <div className="image-wrapper">
         <img
           src={pokemon.sprites.other["official-artwork"].front_default}
@@ -102,21 +102,21 @@ function PostDetail() {
         />
       </div>
 
-      {/* Tarjeta de Datos */}
+      {/* Targeta de Dades */}
       <div className="detail-card-panel">
         
-        {/* Título e ID */}
+        {/* Títol i ID */}
         <div className="title-section">
           <h1 className="pokemon-name-detail">{pokemon.name}</h1>
           
-          {/* Icono Pokédex + Número */}
+          {/* Icona Pokédex + Número */}
           <div className="id-container">
             <img src={ICONO_POKEDEX} alt="Pokedex" className="pokedex-icon" />
             <span className="pokemon-id-detail">Nº {String(pokemon.id).padStart(4, '0')}</span>
           </div>
         </div>
 
-        {/* Tipos (Alineados izquierda) */}
+        {/* Tipus (Alineats a l'esquerra) */}
         <div className="types-container">
           {pokemon.types.map((t) => (
             <span 
@@ -129,12 +129,12 @@ function PostDetail() {
           ))}
         </div>
 
-        {/* Descripción */}
+        {/* Descripció */}
         <p className="pokemon-description">
           {description}
         </p>
 
-        {/* Grid de Estadísticas */}
+        {/* Grid d'Estadístiques */}
         <div className="stats-grid">
           
           <div className="stat-box">
