@@ -26,7 +26,7 @@ function Footer() {
       </Link>
 
       {/* Botó Favorits */}
-      <Link to="/favoritos" className="nav-item">
+      <Link to="/favorits" className="nav-item">
         <img src={ICONO_FAVORITOS} alt="Favoritos" className="nav-icon" />
       </Link>
 

@@ -1,0 +1,146 @@
+/* --- FavoritesPage.css --- */
+
+/* Fons general de la pàgina (Gris clar) */
+.favorites-container {
+    background-color: #F2F2F7;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Capçalera */
+.detail-header2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #000;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #000;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Contenedor de la llista (Columna vertical) */
+.favorites-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espai entre targetes */
+    padding-bottom: 40px;
+}
+
+/* Targeta Individual (Estil horitzontal) */
+.fav-card {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: row; /* Text esquerra, imatge dreta */
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    height: 110px; /* Altura fixa per uniformitat */
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.fav-card:active {
+    transform: scale(0.98);
+}
+
+/* Enllaç que envolta la targeta */
+.pokemon-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* Secció esquerra: Text i Info */
+.fav-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 6px;
+    flex: 1;
+}
+
+.fav-name {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: capitalize;
+    color: #333;
+    margin: 0;
+}
+
+.fav-id {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8E8E93;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Contenidor dels tipus (Icones) */
+.fav-types {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.fav-type-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+/* Secció dreta: Imatge del Pokémon */
+.fav-image-container {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: -10px; /* Petit ajust perquè s'apropi a la vora dreta */
+}
+
+.fav-pokemon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.15));
+}
+
+/* Botó d'eliminar (X) */
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 59, 48, 0.1); /* Vermell molt suau */
+    color: #FF3B30;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}

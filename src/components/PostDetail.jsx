@@ -56,8 +56,10 @@ function PostDetail() {
     };
     fetchData();
   }, [id]);
- const { toggleFavorite, isFavorite } = useFavorites();
-  if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
+ 
+  const { toggleFavorite, isFavorite } = useFavorites();
+ 
+ if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
 
   // --- Processament de dades ---
   const descriptionEntry = species.flavor_text_entries.find((e) => e.language.name === "es");
@@ -82,7 +84,7 @@ function PostDetail() {
           <img src={ICONO_ATRAS} alt="Volver"/>
         </Link>
 
-        {/* -- Afegir pokéom a favorits -- */}
+        {/* -- Afegir pokémon a favorits -- */}
         <button 
             onClick={() => toggleFavorite(pokemon)}    
             style={{ 
