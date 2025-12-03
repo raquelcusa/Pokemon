@@ -1,7 +1,48 @@
 import { useState, useEffect, useMemo } from "react";
 import "./PostList.css";
 import { Link } from "react-router-dom";
-import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; // Asegúrate de que la ruta sea correcta
+import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
+
+/* -- ICONES TIPUS --*/
+import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
+import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
+import Tipo_bicho_icono_EP from '/src/images/icono_tipos/Tipo_bicho_icono_EP.svg';
+import Tipo_dragón_icono_EP from '/src/images/icono_tipos/Tipo_dragón_icono_EP.svg';
+import Tipo_eléctrico_icono_EP from '/src/images/icono_tipos/Tipo_eléctrico_icono_EP.svg';
+import Tipo_fantasma_icono_EP from '/src/images/icono_tipos/Tipo_fantasma_icono_EP.svg';
+import Tipo_fuego_icono_EP from '/src/images/icono_tipos/Tipo_fuego_icono_EP.svg';
+import Tipo_hada_icono_EP from '/src/images/icono_tipos/Tipo_hada_icono_EP.svg';
+import Tipo_hielo_icono_EP from '/src/images/icono_tipos/Tipo_hielo_icono_EP.svg';
+import Tipo_lucha_icono_EP from '/src/images/icono_tipos/Tipo_lucha_icono_EP.svg';
+import Tipo_normal_icono_EP from '/src/images/icono_tipos/Tipo_normal_icono_EP.svg';
+import Tipo_planta_icono_EP from '/src/images/icono_tipos/Tipo_planta_icono_EP.svg';
+import Tipo_psíquico_icono_EP from '/src/images/icono_tipos/Tipo_psíquico_icono_EP.svg';
+import Tipo_roca_icono_EP from '/src/images/icono_tipos/Tipo_roca_icono_EP.svg';
+import Tipo_siniestro_icono_EP from '/src/images/icono_tipos/Tipo_siniestro_icono_EP.svg';
+import Tipo_tierra_icono_EP from '/src/images/icono_tipos/Tipo_tierra_icono_EP.svg';
+import Tipo_veneno_icono_EP from '/src/images/icono_tipos/Tipo_veneno_icono_EP.svg';
+import Tipo_volador_icono_EP from '/src/images/icono_tipos/Tipo_volador_icono_EP.svg';
+
+const TYPE_ICONS = {
+  steel: Tipo_acero_icono_EP,
+  water: Tipo_agua_icono_EP,
+  bug: Tipo_bicho_icono_EP,
+  dragon: Tipo_dragón_icono_EP,
+  electric: Tipo_eléctrico_icono_EP,
+  ghost: Tipo_fantasma_icono_EP,
+  fire: Tipo_fuego_icono_EP,
+  fairy: Tipo_hada_icono_EP,
+  ice: Tipo_hielo_icono_EP,
+  fighting: Tipo_lucha_icono_EP,
+  normal: Tipo_normal_icono_EP,
+  grass: Tipo_planta_icono_EP,
+  psychic: Tipo_psíquico_icono_EP,
+  rock: Tipo_roca_icono_EP,
+  dark: Tipo_siniestro_icono_EP,
+  ground: Tipo_tierra_icono_EP,
+  poison: Tipo_veneno_icono_EP,
+  flying: Tipo_volador_icono_EP,
+};
 
 // Diccionari de colors i traduccions per als tipus
 const TYPE_CONFIG = {
@@ -128,6 +169,18 @@ function PostList() {
               <div className="card-footer">
                 <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
                 <span className="pokemon-name">{p.name}</span>
+                <div className="types-row">
+                  {p.types.map((type) => (
+                    TYPE_ICONS[type] ? ( 
+                    <img
+                      key={type} 
+                      src={TYPE_ICONS[type]} 
+                      alt={type} 
+                      className="type-icon-mini" 
+                    />
+                    ) : null
+                  ))}
+                </div>
               </div>
             </div>
           </Link>

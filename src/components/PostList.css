@@ -124,7 +124,7 @@ body, html {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  aspect-ratio: 3 / 4; 
+  aspect-ratio:  2/ 3; 
   position: relative;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
@@ -144,20 +144,48 @@ body, html {
 }
 
 .card-footer {
-  background-color: var(--card-footer);
-  padding: 1px;
-  text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 45px;
+  align-items: left;
+  justify-content:left;
+  margin-left:12px;
+  
+  padding: 8px 4px;
+  gap: 4px; 
+}
+
+.types-row {
+  display: flex;
+  gap: 6px;       
+  margin: 4px 0;  
+}
+
+.type-icon-mini {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+
+.pokemon-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize; 
+  color: var(--text-namePoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0px;
+  text-align: left;
 }
 
 .pokemon-id {
   font-size: 0.65rem;
   color: var(--text-subtle);
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 0px;
+  text-align: left;
 }
 
 .pokemon-name {
