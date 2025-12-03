@@ -81,6 +81,8 @@ function PostDetail() {
         <Link to="/" className="back-icon">
           <img src={ICONO_ATRAS} alt="Volver"/>
         </Link>
+
+        {/* -- Afegir pokéom a favorits -- */}
         <button 
             onClick={() => toggleFavorite(pokemon)}    
             style={{ 
