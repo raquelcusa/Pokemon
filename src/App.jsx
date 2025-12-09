@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import PostList from './components/PostList';
 import PostDetail from './components/PostDetail';
 import FavoritesPage from './components/FavoritesPage';
+import Home from './components/Home';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<PostList/>}/>
+        <Route path="/home" element={<Home/>} /> 
         <Route path="/PostDetail/:id" element={<PostDetail/>}/>
         <Route path="/favorits" element={<FavoritesPage />} />
        </Routes>

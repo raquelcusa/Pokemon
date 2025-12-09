@@ -11,7 +11,7 @@ function Footer() {
     <nav className="bottom-nav">
       
       {/* Botó Home */}
-      <Link to="/home" className="nav-item">
+      <Link to="/Home" className="nav-item">
         <img src={ICONO_HOME} alt="Home" className="nav-icon" />
       </Link>
 
