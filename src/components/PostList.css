@@ -228,7 +228,7 @@ body, html {
   border-bottom-right-radius: 0;
   padding: 25px 20px;
   
-  /* CLAU: permite que si la llista és llarga, hagis scroll DENTRE del modal */
+  /* CLAU: permet  que si la llista és llarga, hagis scroll DENTRE del modal */
   max-height: 85vh; /* Màxim el 85% de l'alçada de la pantalla */
   overflow-y: auto; /* Activa la barra de desplaçament si cal */
   

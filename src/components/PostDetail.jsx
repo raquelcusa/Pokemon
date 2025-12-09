@@ -8,7 +8,7 @@ import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
 import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
 
-/* -- IMPORTACIÓN DE ICONOS DE TIPOS -- */
+/* -- IMPORTACIÓ D'ICONES DE TIPUS -- */
 import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
 import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
 import Tipo_bicho_icono_EP from '/src/images/icono_tipos/Tipo_bicho_icono_EP.svg';
@@ -28,7 +28,7 @@ import Tipo_tierra_icono_EP from '/src/images/icono_tipos/Tipo_tierra_icono_EP.s
 import Tipo_veneno_icono_EP from '/src/images/icono_tipos/Tipo_veneno_icono_EP.svg';
 import Tipo_volador_icono_EP from '/src/images/icono_tipos/Tipo_volador_icono_EP.svg';
 
-// Mapeo de iconos para usar en la sección de Evolución
+// Mapeo d'icones per utlitzar en la secció d'Evolució
 const TYPE_ICONS = {
   steel: Tipo_acero_icono_EP,
   water: Tipo_agua_icono_EP,
@@ -92,17 +92,17 @@ function PostDetail() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 1. Datos básicos
+        // 1. Dades bàsics
         const pokemonRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
         const pokemonData = await pokemonRes.json();
         setPokemon(pokemonData);
 
-        // 2. Datos de la especie
+        // 2. Dades de la especie
         const speciesRes = await fetch(pokemonData.species.url);
         const speciesData = await speciesRes.json();
         setSpecies(speciesData);
 
-        // 3. Datos de Evolución
+        // 3. Dades de Evolució
         const evoChainRes = await fetch(speciesData.evolution_chain.url);
         const evoChainData = await evoChainRes.json();
         
@@ -175,7 +175,7 @@ function PostDetail() {
         </button>
       </header>
 
-      {/* IMAGEN */}
+      {/* IMATGE */}
       <div className="image-wrapper">
         <img
           src={pokemon.sprites.other["official-artwork"].front_default}
@@ -184,7 +184,7 @@ function PostDetail() {
         />
       </div>
 
-      {/* --- TARJETA 1: INFO GENERAL --- */}
+      {/* --- TARGETA 1: INFO GENERAL --- */}
       <div className="detail-card-panel main-panel">
         <div className="title-section">
           <h1 className="pokemon-name-detail">{pokemon.name}</h1>
@@ -253,7 +253,7 @@ function PostDetail() {
         </div>
       </div>
 
-      {/* --- TARJETA 2: SKILLS --- */}
+      {/* --- TARGETA 2: SKILLS --- */}
       <div className="detail-card-panel skills-panel">
         <h3 className="skills-title">Skills</h3>
         
@@ -280,7 +280,7 @@ function PostDetail() {
         </div>
       </div>
 
-      {/* --- TARJETA 3: EVOLUCIÓN (CON ICONOS) --- */}
+      {/* --- TARGETA 3: EVOLUCIÓ (AMB ICONES) --- */}
       {evolutions.length > 0 && (
           <div className="detail-card-panel evolution-panel">
             <h3 className="skills-title">Evolución</h3>

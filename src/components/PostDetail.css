@@ -1,3 +1,4 @@
+/* Assegurem que el contenidor ocupi TOTA la pantalla */
 .detail-container {
   min-height: 100vh;
   width: 100%;
@@ -11,14 +12,42 @@
   overflow-x: hidden;
   transition: background-color 0.4s ease;
 
-  /* Aumentamos de 50px a 120px (o más si tu footer es muy alto) */
-  /* Esto crea el espacio vacío al final para que el footer no tape nada */
+  /* Espai per al footer */
   padding-bottom: 120px; 
+
+  /* --- EFECTES DE RATLLES "RANDOM" --- */
+  background-image: 
+      /* CAPA 1: Ratlles fines i mitjanes amb ritme irregular */
+      repeating-linear-gradient(
+          -45deg,
+          transparent 0px,
+          transparent 10px,
+          rgba(255, 255, 255, 0.1) 10px, /* Ratlla fina */
+          rgba(255, 255, 255, 0.1) 13px,
+          transparent 13px,
+          transparent 50px,
+          rgba(255, 255, 255, 0.1) 50px, /* Ratlla mitjana */
+          rgba(255, 255, 255, 0.1) 70px,
+          transparent 70px,
+          transparent 100px
+      ),
+      /* CAPA 2: Blocs grans de fons (més subtils) */
+      repeating-linear-gradient(
+          -45deg,
+          transparent 0px,
+          transparent 120px,
+          rgba(255, 255, 255, 0.03) 120px, /* Blocs molt amples i suaus */
+          rgba(255, 255, 255, 0.03) 180px,
+          transparent 180px,
+          transparent 280px
+      );
+  
+  background-attachment: fixed; /* Manté el patró fix quan es fa scroll */
 }
 
-/* --- HEADER --- */
+/* --- CAPÇALERA --- */
 .detail-header {
-  padding: 10px 20px 0 20px;
+  padding: 8px 25px 0 25px;
   z-index: 10;
   display: flex;
   justify-content: space-between;
@@ -39,7 +68,7 @@
   transform: scale(1.1);
 }
 
-/* --- IMAGEN --- */
+/* --- IMATGE --- */
 .image-wrapper {
   display: flex;
   justify-content: center;
@@ -47,7 +76,7 @@
   height: 220px;
   width: 100%;
   z-index: 5;
-  /* Margen negativo para que la imagen pise la tarjeta blanca */
+  /* Marge negatiu perquè la imatge trepitgi la targeta blanca */
   margin-bottom: -50px; 
 }
 
@@ -59,13 +88,13 @@
   z-index: 5;
 }
 
-/* --- ESTILOS BASE DE LAS TARJETAS BLANCAS --- */
+/* --- ESTILS BASE DE LES TARGETES BLANQUES --- */
 .detail-card-panel {
   background-color: white;
   width: 92%;
   max-width: 80%;
   
-  /* Centrado horizontal */
+  /* Centrat horitzontal */
   margin: 0 auto; 
   
   border-radius: 30px;
@@ -78,26 +107,26 @@
   position: relative;
 }
 
-/* 1. Tarjeta Principal (Info + Gender) */
+/* 1. Targeta Principal (Info + Gènere) */
 .main-panel {
-  padding-top: 60px; /* Espacio extra arriba para la imagen */
-  margin-bottom: 20px; /* GAP: Espacio transparente */
+  padding-top: 60px; /* Espai extra a dalt per a la imatge */
+  margin-bottom: 20px; /* GAP: Espai transparent */
 }
 
-/* 2. Tarjeta Skills */
+/* 2. Targeta Skills (Habilitats) */
 .skills-panel {
-  align-items: stretch; /* Para que las barras ocupen todo el ancho */
-  margin-bottom: 20px; /* GAP: Espacio transparente */
+  align-items: stretch; /* Perquè les barres ocupin tota l'amplada */
+  margin-bottom: 20px; /* GAP: Espai transparent */
 }
 
-/* 3. Tarjeta Evolución */
+/* 3. Targeta Evolució */
 .evolution-panel {
   align-items: center;
-  margin-bottom: 0; /* La última no necesita margen abajo (lo da el padding del container) */
+  margin-bottom: 0; /* L'última no necessita marge a sota (ho dona el padding del contenidor) */
 }
 
 
-/* --- TIPOGRAFÍA Y ELEMENTOS DE INFO --- */
+/* --- TIPOGRAFIA I ELEMENTS D'INFO --- */
 .title-section {
   text-align: left;
   margin-bottom: 15px;
@@ -156,7 +185,7 @@
   max-width: 500px;
 }
 
-/* --- GRID DE ESTADÍSTICAS (Peso, Altura...) --- */
+/* --- GRAELLA D'ESTADÍSTIQUES (Pes, Alçada...) --- */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -203,7 +232,7 @@
   text-transform: capitalize;
 }
 
-/* --- BARRA DE GÉNERO --- */
+/* --- BARRA DE GÈNERE --- */
 .gender-container {
   width: 100%;
   max-width: 400px;
@@ -280,7 +309,7 @@
   margin-top: 5px;
 }
 
-/* --- SKILLS --- */
+/* --- HABILITATS (SKILLS) --- */
 .skills-title {
   font-size: 1.1rem;
   color: #555;
@@ -349,7 +378,7 @@
   background-color: transparent;
 }
 
-/* --- EVOLUCIÓN (NUEVO) --- */
+/* --- EVOLUCIÓ (NOU) --- */
 .evolution-list {
     display: flex;
     justify-content: center;
@@ -373,72 +402,7 @@
     gap: 5px;
 }
 
-/* Círculo gris de fondo para la imagen */
-.evo-img-circle {
-    background-color: #f0f0f0;
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 5px;
-}
-
-.evo-img {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-}
-
-.evo-id {
-    font-size: 0.8rem;
-    color: #999;
-    font-weight: 600;
-}
-
-.evo-name {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #444;
-    text-transform: capitalize;
-}
-
-.evo-types-row {
-    display: flex;
-    gap: 4px;
-    margin-top: 2px;
-}
-
-.evo-type-pill {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    display: inline-block;
-}
-.evolution-list {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.evo-item-link {
-    text-decoration: none;
-    color: inherit;
-    flex: 1;
-    min-width: 80px;
-    max-width: 110px;
-}
-
-.evo-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
+/* Cercle gris de fons per a la imatge */
 .evo-img-circle {
     background-color: #f0f0f0;
     border-radius: 50%;
@@ -476,14 +440,15 @@
     justify-content: center;
 }
 
-/* CLASE NUEVA PARA LOS ICONOS SVG */
+/* CLASSE NOVA PER A LES ICONES SVG */
 .evo-type-icon {
     width: 25px; 
     height: 25px;
     object-fit: contain;
     border-radius: 5px;
 }
-/* Loading */
+
+/* Carregant */
 .loading {
   display: flex;
   justify-content: center;
