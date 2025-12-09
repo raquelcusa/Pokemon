@@ -261,7 +261,7 @@ function PostDetail() {
                                 src={TYPE_ICONS[typeName]} 
                                 alt={typeName} 
                                 title={typeName}
-                                style={{ width: '20px', height: '20px', flexWrap: 'wrap' }} 
+                                style={{ width: '30px', height: '30px', flexWrap: 'wrap' }} 
                             />
                         )
                     ))
@@ -283,7 +283,7 @@ function PostDetail() {
                                 src={TYPE_ICONS[typeName]} 
                                 alt={typeName}
                                 title={typeName}
-                                style={{ width: '20px', height: '20px' , flexWrap: 'wrap' }} 
+                                style={{ width: '30px', height: '30px' , flexWrap: 'wrap' }} 
                             />
                         )
                     ))
