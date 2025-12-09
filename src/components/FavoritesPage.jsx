@@ -1,140 +1,182 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useFavorites } from '../context/FavoritesContext';
 import { Link } from 'react-router-dom';
-import '../components/FavoritesPage.css'; // Importante: Usamos los estilos de la lista
+import '../components/FavoritesPage.css'; 
 
-/* -- IMPORTACIÓN DE ICONOS (Igual que en PostList) -- */
-import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
-import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
-import Tipo_bicho_icono_EP from '/src/images/icono_tipos/Tipo_bicho_icono_EP.svg';
-import Tipo_dragón_icono_EP from '/src/images/icono_tipos/Tipo_dragón_icono_EP.svg';
-import Tipo_eléctrico_icono_EP from '/src/images/icono_tipos/Tipo_eléctrico_icono_EP.svg';
-import Tipo_fantasma_icono_EP from '/src/images/icono_tipos/Tipo_fantasma_icono_EP.svg';
-import Tipo_fuego_icono_EP from '/src/images/icono_tipos/Tipo_fuego_icono_EP.svg';
-import Tipo_hada_icono_EP from '/src/images/icono_tipos/Tipo_hada_icono_EP.svg';
-import Tipo_hielo_icono_EP from '/src/images/icono_tipos/Tipo_hielo_icono_EP.svg';
-import Tipo_lucha_icono_EP from '/src/images/icono_tipos/Tipo_lucha_icono_EP.svg';
-import Tipo_normal_icono_EP from '/src/images/icono_tipos/Tipo_normal_icono_EP.svg';
-import Tipo_planta_icono_EP from '/src/images/icono_tipos/Tipo_planta_icono_EP.svg';
-import Tipo_psíquico_icono_EP from '/src/images/icono_tipos/Tipo_psíquico_icono_EP.svg';
-import Tipo_roca_icono_EP from '/src/images/icono_tipos/Tipo_roca_icono_EP.svg';
-import Tipo_siniestro_icono_EP from '/src/images/icono_tipos/Tipo_siniestro_icono_EP.svg';
-import Tipo_tierra_icono_EP from '/src/images/icono_tipos/Tipo_tierra_icono_EP.svg';
-import Tipo_veneno_icono_EP from '/src/images/icono_tipos/Tipo_veneno_icono_EP.svg';
-import Tipo_volador_icono_EP from '/src/images/icono_tipos/Tipo_volador_icono_EP.svg';
+// Importación de iconos (para el header o detalles si fuera necesario, aunque usaremos pills para tipos)
+import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
+import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 
-// Mapeo de iconos
-const TYPE_ICONS = {
-  steel: Tipo_acero_icono_EP,
-  water: Tipo_agua_icono_EP,
-  bug: Tipo_bicho_icono_EP,
-  dragon: Tipo_dragón_icono_EP,
-  electric: Tipo_eléctrico_icono_EP,
-  ghost: Tipo_fantasma_icono_EP,
-  fire: Tipo_fuego_icono_EP,
-  fairy: Tipo_hada_icono_EP,
-  ice: Tipo_hielo_icono_EP,
-  fighting: Tipo_lucha_icono_EP,
-  normal: Tipo_normal_icono_EP,
-  grass: Tipo_planta_icono_EP,
-  psychic: Tipo_psíquico_icono_EP,
-  rock: Tipo_roca_icono_EP,
-  dark: Tipo_siniestro_icono_EP,
-  ground: Tipo_tierra_icono_EP,
-  poison: Tipo_veneno_icono_EP,
-  flying: Tipo_volador_icono_EP,
+// Configuración de Tipos (Colores y Nombres en Español)
+const TYPE_CONFIG = {
+  normal: { name: "Normal", color: "#A8A77A" },
+  fire: { name: "Fuego", color: "#E62829" },
+  water: { name: "Agua", color: "#2980EF" },
+  electric: { name: "Eléctrico", color: "#FAC000" },
+  grass: { name: "Planta", color: "#3FA129" },
+  ice: { name: "Hielo", color: "#3FD8FF" },
+  fighting: { name: "Lucha", color: "#FF8000" },
+  poison: { name: "Veneno", color: "#8F41CB" },
+  ground: { name: "Tierra", color: "#915121" },
+  flying: { name: "Volador", color: "#81B9EF" },
+  psychic: { name: "Psíquico", color: "#EF4179" },
+  bug: { name: "Bicho", color: "#91A119" },
+  rock: { name: "Roca", color: "#AFA981" },
+  ghost: { name: "Fantasma", color: "#704170" },
+  dragon: { name: "Dragón", color: "#5061E1" },
+  steel: { name: "Acero", color: "#60A1B8" },
+  dark: { name: "Siniestro", color: "#50413F" },
+  fairy: { name: "Hada", color: "#EF71EF" },
 };
 
 function FavoritesPage() {
   const { favorites, toggleFavorite } = useFavorites();
 
-  // Estado vacío
+  // --- ESTADOS DE FILTROS (Igual que en PostList) ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState(null);
+  const [sortOrder, setSortOrder] = useState("id_asc");
+  
+  // Estados de Modales
+  const [showTypeModal, setShowTypeModal] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
+
+  // --- LÓGICA DE FILTRADO Y ORDENACIÓN ---
+  const filteredFavorites = useMemo(() => {
+    if (!favorites) return [];
+    
+    let result = [...favorites];
+
+    // 1. Normalizar tipos antes de filtrar (asegurar que es un array de strings)
+    // Esto es necesario porque favorites puede tener objetos complejos
+    result = result.map(p => {
+        const normalizedTypes = p.types.map(t => t.type ? t.type.name : t);
+        return { ...p, normalizedTypes }; // Añadimos propiedad temporal
+    });
+
+    // 2. Buscador
+    if (searchTerm) {
+      result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    // 3. Filtrar por Tipo
+    if (selectedType) {
+      result = result.filter(p => p.normalizedTypes.includes(selectedType));
+    }
+
+    // 4. Ordenar
+    result.sort((a, b) => {
+      switch (sortOrder) {
+        case "id_asc": return a.id - b.id;
+        case "id_desc": return b.id - a.id;
+        case "name_asc": return a.name.localeCompare(b.name);
+        case "name_desc": return b.name.localeCompare(a.name);
+        default: return a.id - b.id;
+      }
+    });
+
+    return result;
+  }, [favorites, searchTerm, selectedType, sortOrder]);
+
+
+  // --- RENDERIZADO ---
   if (!favorites || favorites.length === 0) {
     return (
-        <div className="pokedex-container" style={{ textAlign: 'center', marginTop: '50px', color: 'white' }}>
+        <div className="pokedex-container empty-state">
             <h2>No tienes favoritos aún</h2>
-            <Link to="/" style={{ color: '#FAC000', textDecoration: 'none', fontWeight: 'bold' }}>Ir a la Pokédex</Link>
+            <Link to="/" className="empty-link">Ir a la Pokédex</Link>
         </div>
     );
   }
 
   return (
     <div className="pokedex-container">
-      {/* Reutilizamos clases de PostList */}
-      <header className="detail-header2">
-        <Link to="/" className="back-btn" style={{textDecoration: 'none', color: 'white', fontSize: '1.5rem'}}>
-          {/* Puedes usar el icono de atrás si lo importas, o una flecha simple */}
-          &#8592; 
-        </Link>
-        <h1 className="title">Mis Favoritos</h1>
-      </header>
       
-      <div className="pokemon-grid">
-        {favorites.map((p) => {
-            // --- LÓGICA DE NORMALIZACIÓN DE DATOS ---
-            // Como PostDetail guarda el objeto crudo de la API, la ruta de la imagen es profunda.
-            // Intentamos buscar la imagen HD, si no la normal, si no la propiedad 'sprite' (por si acaso).
+      {/* HEADER */}
+      <header className="detail-header2">
+        <Link to="/" className="back-btn">
+             {/* Usamos el SVG importado o una flecha simple si falla */}
+             <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" style={{width: '24px'}} />
+        </Link>
+        <h1 className="title">Favoritos</h1>
+      </header>
+
+      {/* BUSCADOR */}
+      <div className="search-wrapper">
+        <input 
+          type="text" 
+          className="search-bar" 
+          placeholder="Buscar" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* FILTROS */}
+      <div className="filters">
+        <button className="filter-btn" onClick={() => setShowTypeModal(true)}>
+          {selectedType ? TYPE_CONFIG[selectedType].name : "Tipos"} <span>▼</span>
+        </button>
+        <button className="filter-btn" onClick={() => setShowSortModal(true)}>
+          Ordenar por <span>▼</span>
+        </button>
+      </div>
+      
+      {/* LISTA DE FAVORITOS (Diseño Horizontal) */}
+      <div className="favorites-list-container">
+        {filteredFavorites.map((p) => {
+            // Normalización de Imagen
             const imageUrl = p.sprites?.other?.["official-artwork"]?.front_default 
                           || p.sprites?.front_default 
                           || p.sprite;
-
-            // En PostDetail los tipos son [{type: {name: 'fire'}}], en PostList son ['fire'].
-            // Hacemos un map para asegurar que tenemos un array de strings simples.
-            const typesArray = p.types.map(t => t.type ? t.type.name : t);
+            
+            // Usamos los tipos normalizados que calculamos o los recalculamos
+            const typesArray = p.normalizedTypes || p.types.map(t => t.type ? t.type.name : t);
 
             return (
-              <div key={p.id} style={{ position: 'relative' }}>
-                
-                <Link to={`/PostDetail/${p.id}`} className="pokemon-card-link">
-                  <div className="pokemon-card">
-                    <div className="card-image-container">
-                      <img src={imageUrl} alt={p.name} className="pokemon-img" />
-                    </div>
+              <div key={p.id} className="fav-card-wrapper">
+                <Link to={`/PostDetail/${p.id}`} className="fav-card-link">
+                  <div className="fav-card">
                     
-                    <div className="card-footer">
-                      <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
-                      <span className="pokemon-name">{p.name}</span>
+                    {/* Izquierda: Info */}
+                    <div className="fav-info-col">
+                      <span className="fav-name">{p.name}</span>
+                     
+                      <span className="fav-id"> <img src={ICONO_POKEDEX} alt="Pokedex" className="pokedex-icon" />
+                        Nº {String(p.id).padStart(4, '0')}</span>
                       
-                      <div className="types-row">
-                        {typesArray.map((typeName) => (
-                          TYPE_ICONS[typeName] ? ( 
-                            <img
-                              key={typeName} 
-                              src={TYPE_ICONS[typeName]} 
-                              alt={typeName} 
-                              className="type-icon-mini" 
-                            />
-                          ) : null
-                        ))}
+                      <div className="fav-types-row">
+                        {typesArray.map((typeName) => {
+                            const config = TYPE_CONFIG[typeName];
+                            if (!config) return null;
+                            return (
+                                <span 
+                                    key={typeName} 
+                                    className="type-pill"
+                                    style={{ backgroundColor: config.color }}
+                                >
+                                    {config.name}
+                                </span>
+                            );
+                        })}
                       </div>
                     </div>
+
+                    {/* Derecha: Imagen */}
+                    <div className="fav-image-col">
+                      <img src={imageUrl} alt={p.name} className="fav-img" />
+                      {/* Fondo decorativo de hojas/patrón podría ir aquí como background-image en CSS */}
+                    </div>
+
                   </div>
                 </Link>
 
-                {/* Botón de borrar estilizado */}
+                {/* Botón Borrar (X) */}
                 <button 
+                    className="delete-fav-btn"
                     onClick={(e) => {
-                        e.preventDefault(); // Evitar que el click vaya al Link
+                        e.preventDefault();
                         toggleFavorite(p);
-                    }}
-                    style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        right: '-8px',
-                        background: '#ff4d4d',
-                        color: 'white',
-                        border: '2px solid white',
-                        borderRadius: '50%',
-                        width: '24px',
-                        height: '24px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        zIndex: 10,
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                     }}
                 >
                     X
@@ -143,6 +185,61 @@ function FavoritesPage() {
             );
         })}
       </div>
+
+      {/* --- MODAL DE TIPOS --- */}
+      {showTypeModal && (
+        <div className="modal-overlay" onClick={() => setShowTypeModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Seleccione el tipo</h3>
+            <div className="modal-options-grid">
+              <button 
+                className="type-option-btn" 
+                style={{ background: "#333" }} 
+                onClick={() => { setSelectedType(null); setShowTypeModal(false); }}
+              >
+                Todos
+              </button>
+              {Object.keys(TYPE_CONFIG).map((typeKey) => (
+                <button
+                  key={typeKey}
+                  className="type-option-btn"
+                  style={{ backgroundColor: TYPE_CONFIG[typeKey].color }}
+                  onClick={() => {
+                    setSelectedType(typeKey);
+                    setShowTypeModal(false);
+                  }}
+                >
+                  {TYPE_CONFIG[typeKey].name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL DE ORDENAR --- */}
+      {showSortModal && (
+        <div className="modal-overlay" onClick={() => setShowSortModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Seleccione el orden</h3>
+            <div className="modal-options-list">
+              <button className="sort-option-btn" onClick={() => { setSortOrder("id_asc"); setShowSortModal(false); }}>
+                Nº Ascendente
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("id_desc"); setShowSortModal(false); }}>
+                Nº Descendente
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("name_asc"); setShowSortModal(false); }}>
+                A-Z
+              </button>
+              <button className="sort-option-btn" onClick={() => { setSortOrder("name_desc"); setShowSortModal(false); }}>
+                Z-A
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

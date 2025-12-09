@@ -8,6 +8,48 @@ import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
 import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
 
+/* -- IMPORTACIÓN DE ICONOS DE TIPOS -- */
+import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
+import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
+import Tipo_bicho_icono_EP from '/src/images/icono_tipos/Tipo_bicho_icono_EP.svg';
+import Tipo_dragón_icono_EP from '/src/images/icono_tipos/Tipo_dragón_icono_EP.svg';
+import Tipo_eléctrico_icono_EP from '/src/images/icono_tipos/Tipo_eléctrico_icono_EP.svg';
+import Tipo_fantasma_icono_EP from '/src/images/icono_tipos/Tipo_fantasma_icono_EP.svg';
+import Tipo_fuego_icono_EP from '/src/images/icono_tipos/Tipo_fuego_icono_EP.svg';
+import Tipo_hada_icono_EP from '/src/images/icono_tipos/Tipo_hada_icono_EP.svg';
+import Tipo_hielo_icono_EP from '/src/images/icono_tipos/Tipo_hielo_icono_EP.svg';
+import Tipo_lucha_icono_EP from '/src/images/icono_tipos/Tipo_lucha_icono_EP.svg';
+import Tipo_normal_icono_EP from '/src/images/icono_tipos/Tipo_normal_icono_EP.svg';
+import Tipo_planta_icono_EP from '/src/images/icono_tipos/Tipo_planta_icono_EP.svg';
+import Tipo_psíquico_icono_EP from '/src/images/icono_tipos/Tipo_psíquico_icono_EP.svg';
+import Tipo_roca_icono_EP from '/src/images/icono_tipos/Tipo_roca_icono_EP.svg';
+import Tipo_siniestro_icono_EP from '/src/images/icono_tipos/Tipo_siniestro_icono_EP.svg';
+import Tipo_tierra_icono_EP from '/src/images/icono_tipos/Tipo_tierra_icono_EP.svg';
+import Tipo_veneno_icono_EP from '/src/images/icono_tipos/Tipo_veneno_icono_EP.svg';
+import Tipo_volador_icono_EP from '/src/images/icono_tipos/Tipo_volador_icono_EP.svg';
+
+// Mapeo de iconos para usar en la sección de Evolución
+const TYPE_ICONS = {
+  steel: Tipo_acero_icono_EP,
+  water: Tipo_agua_icono_EP,
+  bug: Tipo_bicho_icono_EP,
+  dragon: Tipo_dragón_icono_EP,
+  electric: Tipo_eléctrico_icono_EP,
+  ghost: Tipo_fantasma_icono_EP,
+  fire: Tipo_fuego_icono_EP,
+  fairy: Tipo_hada_icono_EP,
+  ice: Tipo_hielo_icono_EP,
+  fighting: Tipo_lucha_icono_EP,
+  normal: Tipo_normal_icono_EP,
+  grass: Tipo_planta_icono_EP,
+  psychic: Tipo_psíquico_icono_EP,
+  rock: Tipo_roca_icono_EP,
+  dark: Tipo_siniestro_icono_EP,
+  ground: Tipo_tierra_icono_EP,
+  poison: Tipo_veneno_icono_EP,
+  flying: Tipo_volador_icono_EP,
+};
+
 const TYPE_COLORS = {
   grass: "#3FA129",
   fire: "#E62829",
@@ -29,11 +71,22 @@ const TYPE_COLORS = {
   dark: "#50413F",
 };
 
+const STAT_NAMES = {
+  hp: "HP",
+  attack: "Attack",
+  defense: "Defense",
+  "special-attack": "Sp. Atk",
+  "special-defense": "Sp. Def",
+  speed: "Speed"
+};
+
 function PostDetail() {
   const { id } = useParams();
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
+  const [evolutions, setEvolutions] = useState([]); 
   const [loading, setLoading] = useState(true);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +101,19 @@ function PostDetail() {
         const speciesRes = await fetch(pokemonData.species.url);
         const speciesData = await speciesRes.json();
         setSpecies(speciesData);
+
+        // 3. Datos de Evolución
+        const evoChainRes = await fetch(speciesData.evolution_chain.url);
+        const evoChainData = await evoChainRes.json();
+        
+        const evoList = getEvoChain(evoChainData.chain);
+        
+        const evoDetailsPromises = evoList.map(name => 
+            fetch(`https://pokeapi.co/api/v2/pokemon/${name}`).then(res => res.json())
+        );
+        const evoDetails = await Promise.all(evoDetailsPromises);
+        setEvolutions(evoDetails);
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -56,12 +122,20 @@ function PostDetail() {
     };
     fetchData();
   }, [id]);
- 
-  const { toggleFavorite, isFavorite } = useFavorites();
+
+  const getEvoChain = (chain) => {
+    let evos = [];
+    evos.push(chain.species.name); 
+    if (chain.evolves_to && chain.evolves_to.length > 0) {
+        chain.evolves_to.forEach(subChain => {
+            evos = evos.concat(getEvoChain(subChain));
+        });
+    }
+    return evos;
+  };
  
  if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
 
-  // --- Processament de dades ---
   const descriptionEntry = species.flavor_text_entries.find((e) => e.language.name === "es");
   const description = descriptionEntry 
     ? descriptionEntry.flavor_text.replace(/[\n\f]/g, " ") 
@@ -73,31 +147,35 @@ function PostDetail() {
   const ability = pokemon.abilities[0]?.ability.name;
   const mainType = pokemon.types[0].type.name;
   const backgroundColor = TYPE_COLORS[mainType] || "#9FA19F";
- 
+
+  const genderRate = species.gender_rate;
+  let genderless = genderRate === -1;
+  let femaleRate = genderless ? 0 : (genderRate / 8) * 100;
+  let maleRate = genderless ? 0 : 100 - femaleRate;
+
+  const totalStats = pokemon.stats.reduce((acc, curr) => acc + curr.base_stat, 0);
+  const maxStatValue = 255; 
 
   return (
     <div className="detail-container" style={{ backgroundColor: backgroundColor }}>
       
-      {/* Capçalera */}
+      {/* HEADER */}
       <header className="detail-header">
         <Link to="/" className="back-icon">
           <img src={ICONO_ATRAS} alt="Volver"/>
         </Link>
-
-        {/* -- Afegir pokémon a favorits -- */}
         <button 
             onClick={() => toggleFavorite(pokemon)}    
-            style={{ 
-              background: 'transparent', 
-              border: 'none',            
-                  }}
+            style={{ background: 'transparent', border: 'none' }}
         >
-            {isFavorite(pokemon.id) ?  <img src={HEARTFULL} alt="Favorito" className="fav-icon" />: <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />}
+            {isFavorite(pokemon.id) ?  
+                <img src={HEARTFULL} alt="Favorito" className="fav-icon" /> : 
+                <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />
+            }
         </button>
-
       </header>
 
-      {/* Imatge Gran */}
+      {/* IMAGEN */}
       <div className="image-wrapper">
         <img
           src={pokemon.sprites.other["official-artwork"].front_default}
@@ -106,21 +184,16 @@ function PostDetail() {
         />
       </div>
 
-      {/* Targeta de Dades */}
-      <div className="detail-card-panel">
-        
-        {/* Títol i ID */}
+      {/* --- TARJETA 1: INFO GENERAL --- */}
+      <div className="detail-card-panel main-panel">
         <div className="title-section">
           <h1 className="pokemon-name-detail">{pokemon.name}</h1>
-          
-          {/* Icona Pokédex + Número */}
           <div className="id-container">
             <img src={ICONO_POKEDEX} alt="Pokedex" className="pokedex-icon" />
             <span className="pokemon-id-detail">Nº {String(pokemon.id).padStart(4, '0')}</span>
           </div>
         </div>
 
-        {/* Tipus (Alineats a l'esquerra) */}
         <div className="types-container">
           {pokemon.types.map((t) => (
             <span 
@@ -133,45 +206,122 @@ function PostDetail() {
           ))}
         </div>
 
-        {/* Descripció */}
-        <p className="pokemon-description">
-          {description}
-        </p>
+        <p className="pokemon-description">{description}</p>
 
-        {/* Grid d'Estadístiques */}
         <div className="stats-grid">
-          
           <div className="stat-box">
             <span className="stat-label">PESO</span>
-            <div className="stat-value-pill">
-              {pokemon.weight / 10} kg
-            </div>
+            <div className="stat-value-pill">{pokemon.weight / 10} kg</div>
           </div>
-
           <div className="stat-box">
             <span className="stat-label">ALTURA</span>
-            <div className="stat-value-pill">
-              {pokemon.height / 10} m
-            </div>
+            <div className="stat-value-pill">{pokemon.height / 10} m</div>
           </div>
-
           <div className="stat-box">
             <span className="stat-label">CATEGORÍA</span>
-            <div className="stat-value-pill">
-              {category}
-            </div>
+            <div className="stat-value-pill">{category}</div>
           </div>
-
           <div className="stat-box">
             <span className="stat-label">HABILIDAD</span>
-            <div className="stat-value-pill capitalize">
-              {ability}
-            </div>
+            <div className="stat-value-pill capitalize">{ability}</div>
           </div>
+        </div>
 
+        <div className="gender-container">
+            <span className="gender-title">SEXO</span>
+            {genderless ? (
+                 <div className="gender-bar-container">
+                    <div className="gender-bar-full" style={{background: '#ccc'}}></div>
+                    <span className="gender-text-center">Sin género</span>
+                 </div>
+            ) : (
+                <>
+                    <div className="gender-bar-container">
+                        <div className="gender-part male" style={{ width: `${maleRate}%` }}></div>
+                        <div className="gender-part female" style={{ width: `${femaleRate}%` }}></div>
+                    </div>
+                    <div className="gender-info">
+                        <div className="gender-item male-text">
+                            <span className="gender-symbol">♂</span> <span>{maleRate}%</span>
+                        </div>
+                        <div className="gender-item female-text">
+                            <span>{femaleRate}%</span> <span className="gender-symbol">♀</span> 
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
       </div>
-      
+
+      {/* --- TARJETA 2: SKILLS --- */}
+      <div className="detail-card-panel skills-panel">
+        <h3 className="skills-title">Skills</h3>
+        
+        <div className="skills-list">
+            {pokemon.stats.map((stat) => (
+                <div key={stat.stat.name} className="skill-row">
+                    <span className="skill-name">{STAT_NAMES[stat.stat.name] || stat.stat.name}</span>
+                    <span className="skill-value">{String(stat.base_stat).padStart(3, '0')}</span>
+                    
+                    <div className="skill-bar-bg">
+                        <div 
+                            className="skill-bar-fill" 
+                            style={{ width: `${(stat.base_stat / maxStatValue) * 100}%` }}
+                        ></div>
+                    </div>
+                </div>
+            ))}
+            
+            <div className="skill-row total-row">
+                <span className="skill-name">Total</span>
+                <span className="skill-value">{totalStats}</span>
+                <div className="skill-bar-bg transparent-bar"></div> 
+            </div>
+        </div>
+      </div>
+
+      {/* --- TARJETA 3: EVOLUCIÓN (CON ICONOS) --- */}
+      {evolutions.length > 0 && (
+          <div className="detail-card-panel evolution-panel">
+            <h3 className="skills-title">Evolución</h3>
+            
+            <div className="evolution-list">
+                {evolutions.map((evo) => (
+                    <Link to={`/PostDetail/${evo.id}`} key={evo.id} className="evo-item-link">
+                        <div className="evo-item">
+                            <div className="evo-img-circle">
+                                <img 
+                                    src={evo.sprites.other["official-artwork"].front_default || evo.sprites.front_default} 
+                                    alt={evo.name} 
+                                    className="evo-img"
+                                />
+                            </div>
+                            
+                            <span className="evo-id">Nº {String(evo.id).padStart(4, '0')}</span>
+                            <span className="evo-name">{evo.name}</span>
+                            
+                            {/* AQUÍ USAMOS LOS ICONOS SVG */}
+                            <div className="evo-types-row">
+                                {evo.types.map((t) => {
+                                    const iconSrc = TYPE_ICONS[t.type.name];
+                                    // Si existe icono lo pintamos, sino nada
+                                    return iconSrc ? (
+                                        <img 
+                                            key={t.type.name} 
+                                            src={iconSrc} 
+                                            alt={t.type.name}
+                                            className="evo-type-icon"
+                                        />
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+          </div>
+      )}
+
     </div>
   );
 }

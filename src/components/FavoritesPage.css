@@ -1,146 +1,271 @@
-/* --- FavoritesPage.css --- */
-
-/* Fons general de la pàgina (Gris clar) */
-.favorites-container {
-    background-color: #F2F2F7;
-    min-height: 100vh;
+.pokedex-container {
     padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    
+    
+    /* Aseguramos que haya espacio al final de la lista */
+    padding-bottom: 120px; 
+    
+    /* Esto es importante para que el padding funcione correctamente con el scroll */
+    box-sizing: border-box; 
 }
 
-/* Capçalera */
+/* --- Estado Vacío --- */
+.empty-state {
+    text-align: center;
+    color: white;
+    margin-top: 50px;
+}
+.empty-link {
+    color: #626262;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+h2{
+    color:#121212;
+}
+
+/* --- Header y Buscador (Estilos compartidos visualmente) --- */
 .detail-header2 {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+.title {
+    color: rgb(0, 0, 0);
+    font-size: 2rem;
+    margin: 0;
+}
+.search-wrapper {
+    margin-bottom: 15px;
+}
+.search-bar {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 25px;
+    background-color: #F5F5F5; /* Gris oscuro para input */
+    font-size: 1rem;
+}
+
+/* --- Filtros (Botones) --- */
+.filters {
+    display: flex;
+    gap: 10px;
     margin-bottom: 25px;
 }
-
-.title {
-    font-size: 24px;
-    font-weight: 800;
-    color: #000;
-    margin: 0;
-    flex-grow: 1;
-    text-align: center;
-}
-
-.back-btn {
-    text-decoration: none;
-    color: #000;
-    font-size: 24px;
-    background: none;
+.filter-btn {
+    background-color: #333;
+    color: white;
     border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
     cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.3s;
+}
+.filter-btn:hover {
+    background-color: #444;
 }
 
-/* Contenedor de la llista (Columna vertical) */
-.favorites-grid {
+/* --- TARJETAS DE FAVORITOS (Diseño Horizontal) --- */
+.favorites-list-container {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Espai entre targetes */
-    padding-bottom: 40px;
+    gap: 15px; /* Espacio entre tarjetas */
 }
 
-/* Targeta Individual (Estil horitzontal) */
-.fav-card {
-    background-color: #FFFFFF;
-    border-radius: 20px;
-    padding: 15px 20px;
-    display: flex;
-    flex-direction: row; /* Text esquerra, imatge dreta */
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    height: 110px; /* Altura fixa per uniformitat */
-    position: relative;
-    transition: transform 0.2s ease;
+.fav-card-wrapper {
+    position: relative; /* Para posicionar el botón X */
 }
 
-.fav-card:active {
-    transform: scale(0.98);
-}
-
-/* Enllaç que envolta la targeta */
-.pokemon-card-link {
+.fav-card-link {
     text-decoration: none;
     color: inherit;
     display: block;
 }
 
-/* Secció esquerra: Text i Info */
-.fav-info {
+.fav-card {
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    height: 120px; /* Altura fija para uniformidad */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Columna Izquierda: Texto */
+.fav-info-col {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
-    gap: 6px;
-    flex: 1;
+    gap: 5px;
+    z-index: 2;
 }
 
 .fav-name {
-    font-size: 18px;
-    font-weight: 800;
-    text-transform: capitalize;
     color: #333;
-    margin: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-transform: capitalize;
+    text-align: left;
 }
 
 .fav-id {
-    font-size: 13px;
-    font-weight: 600;
-    color: #8E8E93;
+    color: #888;
+    font-size: 0.9rem;
+    font-weight: bold;
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-/* Contenidor dels tipus (Icones) */
-.fav-types {
+/* Columna Derecha: Imagen */
+.fav-image-col {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fav-img {
+    width: 120%;
+    height: 120%;
+    object-fit: contain;
+    z-index: 2;
+}
+
+/* --- Pills de Tipos (Etiquetas de color) --- */
+.fav-types-row {
     display: flex;
     gap: 8px;
     margin-top: 5px;
 }
 
-.fav-type-icon {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-}
-
-/* Secció dreta: Imatge del Pokémon */
-.fav-image-container {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: -10px; /* Petit ajust perquè s'apropi a la vora dreta */
-}
-
-.fav-pokemon-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.15));
-}
-
-/* Botó d'eliminar (X) */
-.delete-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 59, 48, 0.1); /* Vermell molt suau */
-    color: #FF3B30;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
+.type-pill {
+    padding: 4px 12px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.8rem;
     font-weight: bold;
+    text-transform: capitalize;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* --- Botón de Borrar (X) --- */
+.delete-fav-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4d4d;
+    color: white;
+    border: 2px solid #121212; /* Borde oscuro para resaltar sobre fondo oscuro */
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 5;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Un z-index molt alt per assegurar que tape el footer i la navegació */
+  z-index: 9999; 
+  display: flex;
+  align-items: flex-end; 
+  justify-content: center;
+  
+  padding: 0; 
+}
+
+.modal-content {
+  background-color: white;
+  width: 100%; /* Ocupa tot l'amplada en mòbil */
+  max-width: 500px; /* Límit per a tablet/PC */
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 0; /* Pegat a baix */
+  border-bottom-right-radius: 0;
+  padding: 25px 20px;
+
+  /* CLAU: permite que si la llista és llarga, hagis scroll DENTRE del modal */
+  max-height: 85vh; /* Màxim el 85% de l'alçada de la pantalla */
+  overflow-y: auto; /* Activa la barra de desplaçament si cal */
+  
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease-out;
+  
+  /* Espai extra a baix perquè l'últim botó no quedi enganxat al marge */
+  padding-bottom: 50px; 
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-title {
+  color: #333;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 25px;
+  /* Fem el títol "sticky" perquè es quedi fix en baixar la llista */
+  position: sticky;
+  top: 0;
+  background-color: white;
+  padding-bottom: 10px;
+  z-index: 10;
+}
+
+/* Grid pels botons */
+.modal-options-grid, .modal-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.type-option-btn, .sort-option-btn {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.sort-option-btn {
+    background-color: #333;
+    text-align: center;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
 }

@@ -1,20 +1,25 @@
-/* Assegurem que el contenidor ocupi TOTA la pantalla */
 .detail-container {
   min-height: 100vh;
   width: 100%;
+  
   display: flex;
   flex-direction: column;
+  align-items: center;
+  
   position: relative;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   transition: background-color 0.4s ease;
+
+  /* Aumentamos de 50px a 120px (o más si tu footer es muy alto) */
+  /* Esto crea el espacio vacío al final para que el footer no tape nada */
+  padding-bottom: 120px; 
 }
 
-/* Capçalera */
+/* --- HEADER --- */
 .detail-header {
-  padding: 20px 20px 0 20px;
+  padding: 10px 20px 0 20px;
   z-index: 10;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,72 +27,77 @@
   box-sizing: border-box;
 }
 
-.back-icon {
+.back-icon, .fav-icon {
   width: 48px;
   height: auto;
-  
-  margin-top:40px;
-  cursor:pointer;
-}
-.fav-icon{
-  width: 48px;
-  height: auto;
-
-  margin-top:40px;
-  cursor:pointer;
+  margin-top: 40px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-/* Contenidor de la Imatge */
+.back-icon:hover, .fav-icon:hover {
+  transform: scale(1.1);
+}
+
+/* --- IMAGEN --- */
 .image-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  height: 220px; 
+  height: 220px;
+  width: 100%;
   z-index: 5;
-  margin-bottom: -50px; /* Enfonsem la imatge perquè trapitgi la targeta blanca */
+  /* Margen negativo para que la imagen pise la tarjeta blanca */
+  margin-bottom: -50px; 
 }
 
 .main-pokemon-img {
   width: 250px;
   height: 250px;
   object-fit: contain;
-  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
   z-index: 5;
 }
 
-/* --- TARGETA BLANCA (El panell principal) --- */
+/* --- ESTILOS BASE DE LAS TARJETAS BLANCAS --- */
 .detail-card-panel {
   background-color: white;
-  
-  width: 92%;           
+  width: 92%;
   max-width: 80%;
   
-
-  margin: 0 auto 100px auto;       
+  /* Centrado horizontal */
+  margin: 0 auto; 
   
-  
-  flex-grow: 0;         
-  
-  border-radius: 30px; 
-  
-  padding: 60px 20px 40px 20px; 
+  border-radius: 30px;
+  padding: 40px 20px;
   
   display: flex;
   flex-direction: column;
-  align-items: center; 
   
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   position: relative;
-  
-  overflow-y: auto; 
-  scrollbar-width: none; 
 }
 
-.detail-card-panel::-webkit-scrollbar {
-  display: none;
+/* 1. Tarjeta Principal (Info + Gender) */
+.main-panel {
+  padding-top: 60px; /* Espacio extra arriba para la imagen */
+  margin-bottom: 20px; /* GAP: Espacio transparente */
 }
 
-/* Título e ID - ALINEADO A LA IZQUIERDA */
+/* 2. Tarjeta Skills */
+.skills-panel {
+  align-items: stretch; /* Para que las barras ocupen todo el ancho */
+  margin-bottom: 20px; /* GAP: Espacio transparente */
+}
+
+/* 3. Tarjeta Evolución */
+.evolution-panel {
+  align-items: center;
+  margin-bottom: 0; /* La última no necesita margen abajo (lo da el padding del container) */
+}
+
+
+/* --- TIPOGRAFÍA Y ELEMENTOS DE INFO --- */
 .title-section {
   text-align: left;
   margin-bottom: 15px;
@@ -101,22 +111,24 @@
   margin: 0;
   color: #333;
 }
-.pokedex-icon {
-  width: 30px;
-  height: auto;
-}
+
 .id-container {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
+.pokedex-icon {
+  width: 30px;
+  height: auto;
+}
+
 .pokemon-id-detail {
   font-size: 1.1rem;
   color: #888;
   font-weight: 600;
 }
 
-/* Tipos - ALINEADO A LA IZQUIERDA */
 .types-container {
   display: flex;
   gap: 12px;
@@ -132,7 +144,7 @@
   font-weight: 700;
   text-transform: capitalize;
   font-size: 0.95rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .pokemon-description {
@@ -140,18 +152,18 @@
   color: #555;
   font-size: 1rem;
   line-height: 1.6;
-  margin: 5px;
-  margin-bottom: 30px;
+  margin: 5px 0 30px 0;
   max-width: 500px;
 }
 
-/* --- GRID DE ESTADÍSTICAS --- */
+/* --- GRID DE ESTADÍSTICAS (Peso, Altura...) --- */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
   max-width: 400px;
+  align-self: center;
 }
 
 .stat-box {
@@ -165,12 +177,11 @@
   color: #999;
   font-weight: 700;
   margin-bottom: 8px;
-  margin-left: 20px;
+  margin-left: 10px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Valores dentro de "píldoras" bordeadas */
 .stat-value-pill {
   width: 100%;
   border: 2px solid #505050;
@@ -192,6 +203,286 @@
   text-transform: capitalize;
 }
 
+/* --- BARRA DE GÉNERO --- */
+.gender-container {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+}
+
+.gender-title {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.gender-bar-container {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background-color: #f0f0f0;
+}
+
+.gender-part.male {
+  background-color: #999999;
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.gender-part.female {
+  background-color: #555555;
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.gender-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.gender-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gender-symbol {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.male-text .gender-symbol, .female-text .gender-symbol {
+  color: #666;
+}
+
+.gender-bar-full {
+  width: 100%;
+  height: 100%;
+  background-color: #e0e0e0;
+}
+.gender-text-center {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 5px;
+}
+
+/* --- SKILLS --- */
+.skills-title {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0 0 20px 0;
+  margin-top: -20px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.95rem;
+}
+
+.skill-name {
+  width: 80px;
+  color: #888;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.skill-value {
+  width: 30px;
+  color: #333;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.skill-bar-bg {
+  flex-grow: 1;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background-color: #555;
+  border-radius: 3px;
+  transition: width 1s ease-out;
+}
+
+.total-row {
+  margin-top: 5px;
+  font-weight: 800;
+}
+
+.total-row .skill-name,
+.total-row .skill-value {
+  color: #333;
+}
+
+.transparent-bar {
+  background-color: transparent;
+}
+
+/* --- EVOLUCIÓN (NUEVO) --- */
+.evolution-list {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.evo-item-link {
+    text-decoration: none;
+    color: inherit;
+    flex: 1;
+    min-width: 80px;
+    max-width: 110px;
+}
+
+.evo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Círculo gris de fondo para la imagen */
+.evo-img-circle {
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.evo-img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+.evo-id {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 600;
+}
+
+.evo-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #444;
+    text-transform: capitalize;
+}
+
+.evo-types-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.evo-type-pill {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.evolution-list {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.evo-item-link {
+    text-decoration: none;
+    color: inherit;
+    flex: 1;
+    min-width: 80px;
+    max-width: 110px;
+}
+
+.evo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.evo-img-circle {
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.evo-img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+.evo-id {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 600;
+}
+
+.evo-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #444;
+    text-transform: capitalize;
+}
+
+.evo-types-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    justify-content: center;
+}
+
+/* CLASE NUEVA PARA LOS ICONOS SVG */
+.evo-type-icon {
+    width: 25px; 
+    height: 25px;
+    object-fit: contain;
+    border-radius: 5px;
+}
 /* Loading */
 .loading {
   display: flex;
