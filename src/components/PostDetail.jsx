@@ -28,7 +28,7 @@ import Tipo_tierra_icono_EP from '/src/images/icono_tipos/Tipo_tierra_icono_EP.s
 import Tipo_veneno_icono_EP from '/src/images/icono_tipos/Tipo_veneno_icono_EP.svg';
 import Tipo_volador_icono_EP from '/src/images/icono_tipos/Tipo_volador_icono_EP.svg';
 
-// Mapeo d'icones per utlitzar en la secció d'Evolució
+// Mapeo d'icones
 const TYPE_ICONS = {
   steel: Tipo_acero_icono_EP,
   water: Tipo_agua_icono_EP,
@@ -85,6 +85,8 @@ function PostDetail() {
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
   const [evolutions, setEvolutions] = useState([]); 
+  // Estado nuevo para guardar debilidades y fortalezas
+  const [typeRelations, setTypeRelations] = useState({ weaknesses: [], strengths: [] });
   const [loading, setLoading] = useState(true);
   const { toggleFavorite, isFavorite } = useFavorites();
 
@@ -102,7 +104,45 @@ function PostDetail() {
         const speciesData = await speciesRes.json();
         setSpecies(speciesData);
 
-        // 3. Dades de Evolució
+        // 3. Dades de Relacions de Tipus (Debilidades y Fortalezas)
+        // Obtenemos la info detallada de cada tipo que tiene el pokemon
+        const typeUrls = pokemonData.types.map(t => t.type.url);
+        const typeResponses = await Promise.all(typeUrls.map(url => fetch(url).then(res => res.json())));
+
+        // --- CÁLCULO DE DEBILIDADES (Defensivo) ---
+        // Inicializamos todos los tipos con multiplicador 1
+        const damageMap = {};
+        const allTypes = Object.keys(TYPE_ICONS);
+        allTypes.forEach(t => damageMap[t] = 1);
+
+        typeResponses.forEach(typeData => {
+            // double_damage_from -> El pokemon recibe x2
+            typeData.damage_relations.double_damage_from.forEach(t => {
+                if(damageMap[t.name]) damageMap[t.name] *= 2;
+            });
+            // half_damage_from -> El pokemon recibe x0.5
+            typeData.damage_relations.half_damage_from.forEach(t => {
+                if(damageMap[t.name]) damageMap[t.name] *= 0.5;
+            });
+            // no_damage_from -> El pokemon recibe x0 (inmune)
+            typeData.damage_relations.no_damage_from.forEach(t => {
+                if(damageMap[t.name]) damageMap[t.name] *= 0;
+            });
+        });
+        // Filtramos los que tengan multiplicador > 1 (son debilidades reales)
+        const weakTo = Object.keys(damageMap).filter(t => damageMap[t] > 1);
+
+        // --- CÁLCULO DE FORTALEZAS (Ofensivo) ---
+        // Contra qué tipos pega fuerte este pokemon (unimos los arrays double_damage_to)
+        const strongSet = new Set();
+        typeResponses.forEach(typeData => {
+            typeData.damage_relations.double_damage_to.forEach(t => strongSet.add(t.name));
+        });
+        const strongAgainst = Array.from(strongSet);
+
+        setTypeRelations({ weaknesses: weakTo, strengths: strongAgainst });
+
+        // 4. Dades de Evolució
         const evoChainRes = await fetch(speciesData.evolution_chain.url);
         const evoChainData = await evoChainRes.json();
         
@@ -209,14 +249,50 @@ function PostDetail() {
         <p className="pokemon-description">{description}</p>
 
         <div className="stats-grid">
+          {/* CASILLA 1: DEBILIDADES (Sustituye a Peso) */}
           <div className="stat-box">
-            <span className="stat-label">PESO</span>
-            <div className="stat-value-pill">{pokemon.weight / 10} kg</div>
+            <span className="stat-label">DEBILIDADES</span>
+            <div className="stat-value-pill" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px', padding: '5px', maxWidth: '94%' }}>
+                {typeRelations.weaknesses.length > 0 ? (
+                    typeRelations.weaknesses.map(typeName => (
+                        TYPE_ICONS[typeName] && (
+                            <img 
+                                key={typeName} 
+                                src={TYPE_ICONS[typeName]} 
+                                alt={typeName} 
+                                title={typeName}
+                                style={{ width: '20px', height: '20px', flexWrap: 'wrap' }} 
+                            />
+                        )
+                    ))
+                ) : (
+                    <span style={{ fontSize: '0.8rem' }}>Ninguna</span>
+                )}
+            </div>
           </div>
+
+          {/* CASILLA 2: FORTALEZAS (Sustituye a Altura) */}
           <div className="stat-box">
-            <span className="stat-label">ALTURA</span>
-            <div className="stat-value-pill">{pokemon.height / 10} m</div>
+            <span className="stat-label">EFICAZ CONTRA</span>
+            <div className="stat-value-pill" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px', padding: '5px' , maxWidth: '94%' }}>
+                {typeRelations.strengths.length > 0 ? (
+                    typeRelations.strengths.map(typeName => (
+                        TYPE_ICONS[typeName] && (
+                            <img 
+                                key={typeName} 
+                                src={TYPE_ICONS[typeName]} 
+                                alt={typeName}
+                                title={typeName}
+                                style={{ width: '20px', height: '20px' , flexWrap: 'wrap' }} 
+                            />
+                        )
+                    ))
+                ) : (
+                    <span style={{ fontSize: '0.8rem' }}>Ninguno</span>
+                )}
+            </div>
           </div>
+
           <div className="stat-box">
             <span className="stat-label">CATEGORÍA</span>
             <div className="stat-value-pill">{category}</div>
@@ -304,7 +380,6 @@ function PostDetail() {
                             <div className="evo-types-row">
                                 {evo.types.map((t) => {
                                     const iconSrc = TYPE_ICONS[t.type.name];
-                                    // Si existe icono lo pintamos, sino nada
                                     return iconSrc ? (
                                         <img 
                                             key={t.type.name} 
