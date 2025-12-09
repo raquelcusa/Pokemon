@@ -1,106 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+/* --- RESET & BASE --- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #F2F2F2;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
 .home-container {
   width: 100%;
-  padding-bottom: 100px;
-  background-color: #f2f2f2;
+  min-height: 100vh;
+  position: relative;
+  background-color: #F2F2F2;
+  /* En lugar de limitar a 480px, dejamos que crezca pero lo centramos */
+  margin: 0 auto; 
 }
 
-/* Imagen superior */
+/* --- HERO IMAGE (Fondo Greninja) --- */
 .home-hero {
   width: 100%;
-  height: 220px;
+  /* Altura inicial para móvil */
+  height: 35vh; 
+  min-height: 300px;
+  background-position: center top;
   background-size: cover;
-  background-position: center;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  background-repeat: no-repeat;
+  transition: height 0.3s ease;
 }
 
-/* Card negra con buscador */
-.home-search-card {
-  background: #111;
+/* --- TARJETA NEGRA (BUSCADOR) --- */
+.search-card-dark {
+  background-color: #1E1E1E;
+  border-radius: 24px;
+  padding: 30px 25px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  
+  /* RESPONSIVE: Configuración Mobile First */
+  width: 90%;          /* Ocupa el 90% de la pantalla en móviles */
+  max-width: 400px;    /* Pero nunca pasa de 400px de ancho en móvil */
+  margin: -60px auto 0 auto; /* Margen negativo superior para subir y AUTO para centrar */
+}
+
+.home-title {
   color: white;
-  margin: -40px auto 20px;
-  width: 85%;
-  padding: 20px;
-  border-radius: 20px;
-  text-align: left;
+  margin: 0 0 25px 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center; /* Centramos el texto para que se vea bien en desktop */
 }
 
-.home-search-card h2 {
-  margin: 0 0 15px;
-  font-size: 22px;
+/* --- INPUT WRAPPER --- */
+.search-input-wrapper {
+  background-color: #1E1E1E; 
+  border: 1px solid #555;
+  border-radius: 50px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.3s;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #fff; /* Efecto al hacer click */
 }
 
 .search-bar {
-  background: white;
-  padding: 10px 15px;
-  border-radius: 30px;
-}
-
-.search-bar input {
+  background: transparent;
   border: none;
-  width: 100%;
-  font-size: 16px;
-}
-
-.section-title {
-  margin-left: 20px;
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* Pokémon del día card */
-.pokemon-day-card {
-  margin: 10px auto;
-  width: 90%;
-  background: white;
-  border-radius: 20px;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pokemon-info h3 {
-  margin: 0;
-}
-
-.types {
-  display: flex;
-  gap: 10px;
-  margin-top: 5px;
-}
-
-.type {
-  padding: 5px 10px;
-  border-radius: 12px;
-  font-size: 12px;
+  outline: none;
   color: white;
+  width: 100%;
+  font-size: 1rem;
 }
 
-.type-grass {
-  background: #4CAF50;
+.search-bar::placeholder {
+  color: #888;
 }
 
-.type-poison {
-  background: #A040A0;
-}
-
-.pokemon-img {
-  width: 100px;
-}
-
-/* Favoritos */
-.favorites-row {
-  display: flex;
-  justify-content: space-around;
+/* --- DROPDOWN (DESPLEGABLE) --- */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   margin-top: 15px;
-  padding: 0 10px;
+  background: white;
+  border-radius: 16px;
+  list-style: none;
+  padding: 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.fav-img {
-  width: 80px;
-  background: white;
-  padding: 10px;
-  border-radius: 20px;
+.search-dropdown.empty {
+    padding: 20px;
+    text-align: center;
+    color: #666;
 }
+
+.search-dropdown li {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.search-item-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.search-item-link:hover {
+  background-color: #f5f5f5;
+}
+
+.search-item-img {
+  width: 40px; 
+  height: 40px; 
+  margin-right: 15px;
+}
+
+.search-item-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-name {
+  font-weight: 700;
+  text-transform: capitalize;
+  font-size: 1rem;
+}
+
+.search-id {
+  font-size: 0.8rem;
+  color: #888;
+}
+
