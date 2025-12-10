@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom"; 
 import Greninja from '/src/images/Home_fondo/Greninja.png'; 
-import './home.css';
+import './Home.css';
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
