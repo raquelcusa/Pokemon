@@ -148,3 +148,108 @@ body {
   color: #888;
 }
 
+/* ================================
+     POKÉMON DEL DÍA
+================================ */
+.daily-container {
+  width: 90%;
+  max-width: 400px;
+  margin: 25px auto 0 auto;
+}
+
+.daily-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #1E1E1E;
+  text-align: left;
+}
+
+.daily-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.daily-info {
+   display: flex;
+  flex-direction: column; 
+  gap: 8px;
+  align-items: flex-start; 
+  text-align: center; 
+}
+
+.daily-name {
+   font-size: 1.4rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  margin: 0;
+}
+
+.daily-id {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+/* TYPES */
+.daily-types {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.type-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+/* COLORES DE TIPOS — estilo Pokémon GO */
+.type-grass { background-color: #48d0b0; }
+.type-poison { background-color: #b567ce; }
+.type-fire { background-color: #ff9448; }
+.type-water { background-color: #4aa3ff; }
+.type-bug { background-color: #92cc33; }
+.type-normal { background-color: #bfbfbf; }
+.type-electric { background-color: #f4d23c; color: #222; }
+.type-ground { background-color: #d4b26f; }
+.type-fairy { background-color: #f1a8f1; }
+.type-psychic { background-color: #ff6fa3; }
+.type-dark { background-color: #5c5c5c; }
+.type-rock { background-color: #b79f48; }
+.type-dragon { background-color: #006fc9; }
+.type-ghost { background-color: #6f5da7; }
+.type-flying { background-color: #8fa8ff; }
+.type-steel { background-color: #4f8a8b; }
+.type-ice { background-color: #74d0e3; }
+.type-fighting { background-color: #c44d4d; }
+
+/* Imagen del Pokémon */
+.daily-img {
+  width: 110px;
+  height: auto;
+}
+
+.daily-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.daily-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.daily-card:hover {
+  transform: scale(1.03);
+}
