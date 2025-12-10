@@ -79,7 +79,7 @@ function PostList() {
   const [showSortModal, setShowSortModal] = useState(false);
 
   useEffect(() => {
-    fetch("https://pokeapi.co/api/v2/pokemon?limit=800")
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=200")
       .then((res) => res.json())
       .then((data) => {
         return Promise.all(

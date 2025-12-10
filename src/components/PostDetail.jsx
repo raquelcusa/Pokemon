@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useFavorites } from '../context/FavoritesContext';
 import "./PostDetail.css";
 
@@ -82,6 +82,7 @@ const STAT_NAMES = {
 
 function PostDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
   const [evolutions, setEvolutions] = useState([]); 
@@ -201,12 +202,18 @@ function PostDetail() {
       
       {/* HEADER */}
       <header className="detail-header">
-        <Link to="/" className="back-icon">
-          <img src={ICONO_ATRAS} alt="Volver"/>
-        </Link>
+        {/* Botón Atrás (Izquierda) */}
+        <button 
+            onClick={() => navigate(-1)} 
+            className="header-btn" 
+        >
+          <img src={ICONO_ATRAS} alt="Volver" className="back-icon" />
+        </button>
+
+        {/* Botón Favorito (Derecha) */}
         <button 
             onClick={() => toggleFavorite(pokemon)}    
-            style={{ background: 'transparent', border: 'none' }}
+            className="header-btn"
         >
             {isFavorite(pokemon.id) ?  
                 <img src={HEARTFULL} alt="Favorito" className="fav-icon" /> : 

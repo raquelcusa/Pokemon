@@ -47,27 +47,39 @@
 
 /* --- CAPÇALERA --- */
 .detail-header {
-  padding: 8px 25px 0 25px;
-  z-index: 10;
+  /* Esto asegura que uno vaya a la izquierda y otro a la derecha */
+  justify-content: space-between; 
+  
   display: flex;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  padding: 8px 25px 0 25px; /* Ajusta este padding si quieres los iconos más al borde */
+  z-index: 10;
 }
 
+/* CLASE NUEVA: Resetea los estilos del botón para que parezca solo un icono */
+.header-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex; /* Para centrar la imagen dentro del botón */
+  align-items: center;
+}
+
+/* TUS ESTILOS ORIGINALES (Asegúrate de que se llamen .back-icon y .fav-icon) */
 .back-icon, .fav-icon {
   width: 48px;
   height: auto;
-  margin-top: 40px;
-  cursor: pointer;
+  margin-top: 40px; /* Esto baja los iconos de la parte superior */
   transition: transform 0.2s;
 }
 
-.back-icon:hover, .fav-icon:hover {
+.header-btn:hover .back-icon, 
+.header-btn:hover .fav-icon {
   transform: scale(1.1);
 }
-
 /* --- IMATGE --- */
 .image-wrapper {
   display: flex;
