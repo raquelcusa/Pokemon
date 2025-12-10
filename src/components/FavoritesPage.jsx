@@ -84,7 +84,7 @@ function FavoritesPage() {
     return (
         <div className="pokedex-container empty-state">
             <h2>No tienes favoritos aún</h2>
-            <Link to="/" className="empty-link">Ir a la Pokédex</Link>
+            <Link to="/PostList" className="empty-link">Ir a la Pokédex</Link>
         </div>
     );
   }

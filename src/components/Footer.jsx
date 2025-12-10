@@ -11,22 +11,22 @@ function Footer() {
     <nav className="bottom-nav">
       
       {/* Botó Home */}
-      <Link to="/Home" className="nav-item">
+      <Link to="/" className="nav-item">
         <img src={ICONO_HOME} alt="Home" className="nav-icon" />
       </Link>
 
       {/* Botó Cerca */}
-      <Link to="/" className="nav-item">
+      <Link to="/PostList" className="nav-item">
         <img src={ICONO_BUSQUEDA} alt="Buscar" className="nav-icon" />
       </Link>
 
       {/* Botó Pokédex (Actiu) */}
-      <Link to="/cards" className="nav-item">
+      <Link to="/Teams" className="nav-item">
         <img src={ICONO_POKEDEX} alt="Pokedex" className="nav-icon" />
       </Link>
 
       {/* Botó Favorits */}
-      <Link to="/favorits" className="nav-item">
+      <Link to="/Favorits" className="nav-item">
         <img src={ICONO_FAVORITOS} alt="Favoritos" className="nav-icon" />
       </Link>
 
