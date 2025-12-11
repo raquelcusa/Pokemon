@@ -157,32 +157,6 @@ function Home() {
         </Link>
       </div>
     )}
-
-    {/* EQUIPO 1 */}
-    <div className="daily-container">
-      <h2 className="daily-title">Equipo 1</h2>
-
-      <div className="daily-card">
-        <div className="daily-info">
-          <h3 className="daily-name">Equipo 1</h3>
-          <span className="daily-id">#0001</span>
-
-          <div className="daily-types">
-            <span className="type-badge type-fire">Fire</span>
-            <span className="type-badge type-water">Water</span>
-            <span className="type-badge type-grass">Grass</span>
-          </div>
-        </div>
-
-        <img 
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" 
-          alt="Equipo 1" 
-          className="daily-img"
-          loading="lazy"
-        />
-      </div>
-    </div>
-
   </div>
 );
 
