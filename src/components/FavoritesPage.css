@@ -171,7 +171,7 @@ h2{
     right: -8px;
     background: #ff4d4d;
     color: white;
-    border: 2px solid #121212; /* Borde oscuro para resaltar sobre fondo oscuro */
+    border: none;
     border-radius: 50%;
     width: 26px;
     height: 26px;
