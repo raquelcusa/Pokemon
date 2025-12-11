@@ -70,8 +70,10 @@ function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation(); 
-  const selectionState = location.state; // Aquí vendrá { selectionMode, teamId, slotIndex }
-  
+  const selectionState = location.state;
+  const selectionMode = location.state?.selectionMode; // Aquí vendrá { selectionMode, teamId, slotIndex }
+  const backDestination = selectionMode ? "/teams" : "/";
+
   // Estats per Filtres i Orde
   const [selectedType, setSelectedType] = useState(null); // null significa "todos"
   const [sortOrder, setSortOrder] = useState("id_asc"); // id_asc, id_desc, name_asc, name_desc
@@ -133,9 +135,12 @@ function PostList() {
     <div className="pokedex-container">
       {/* Capçalera */}
       <header className="detail-header2">
-        <Link to="/" className="back-btn">
+        
+        {/* 3. USA LA VARIABLE EN EL LINK */}
+        <Link to={backDestination} className="back-btn">
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
         </Link>
+        
         <h1 className="title">Pokédex</h1>
       </header>
 
