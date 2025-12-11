@@ -214,14 +214,14 @@ function PostList() {
       const newDetails = await Promise.all(detailsPromises);
 
       setDisplayedPokemon((prev) => {
-      // Create a Set of existing IDs to compare against efficiently
-      const existingIds = new Set(prev.map((p) => p.id));
-      
-      // Only keep the new details that DO NOT already exist in the list
-      const uniqueNewDetails = newDetails.filter((p) => !existingIds.has(p.id));
-      
-      // Return the combined list
-      return [...prev, ...uniqueNewDetails];
+    // Create a Set of existing IDs to compare against efficiently
+    const existingIds = new Set(prev.map((p) => p.id));
+    
+    // Only keep the new details that DO NOT already exist in the list
+    const uniqueNewDetails = newDetails.filter((p) => !existingIds.has(p.id));
+    
+    // Return the combined list
+    return [...prev, ...uniqueNewDetails];
 });
       setOffset(prev => prev + LIMIT);
       
