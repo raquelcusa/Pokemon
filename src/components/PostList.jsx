@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import "./PostList.css";
 import { Link, useLocation } from "react-router-dom";
-import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
+import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
 
 /* -- ICONES TIPUS --*/
 import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
@@ -44,6 +44,7 @@ const TYPE_ICONS = {
   flying: Tipo_volador_icono_EP,
 };
 
+// Diccionari de colors i traduccions per als tipus
 const TYPE_CONFIG = {
   normal: { name: "Normal", color: "#A8A77A" },
   fire: { name: "Fuego", color: "#E62829" },
@@ -68,15 +69,16 @@ const TYPE_CONFIG = {
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const location = useLocation();
+  const location = useLocation(); 
   const selectionState = location.state;
-  const selectionMode = location.state?.selectionMode;
+  const selectionMode = location.state?.selectionMode; // Aquí vendrá { selectionMode, teamId, slotIndex }
   const backDestination = selectionMode ? "/teams" : "/";
 
-  const [selectedType, setSelectedType] = useState(null);
-  const [sortOrder, setSortOrder] = useState("id_asc");
-
+  // Estats per Filtres i Orde
+  const [selectedType, setSelectedType] = useState(null); // null significa "todos"
+  const [sortOrder, setSortOrder] = useState("id_asc"); // id_asc, id_desc, name_asc, name_desc
+  
+  // Estats per visibilitat de Modals
   const [showTypeModal, setShowTypeModal] = useState(false);
   const [showSortModal, setShowSortModal] = useState(false);
 
@@ -84,54 +86,86 @@ function PostList() {
   // LAZY LOAD states
   // ------------------------------
   const [offset, setOffset] = useState(0);
+  const limit = 50; // cantidad por batch
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
+  // refs para controlar offsets solicitados y peticiones en vuelo (evita duplicados)
+  const requestedOffsetsRef = useRef(new Set()); // offsets ya solicitados
+  const inflightOffsetsRef = useRef(new Set()); // offsets en curso
+
   // ------------------------------
-  // LOAD POKEMONS FUNCTION (Lazy Load)
+  // LOAD POKEMONS FUNCTION (Lazy Load) - VERSION ROBUSTA
   // ------------------------------
-  const loadPokemons = () => {
+  const loadPokemons = async () => {
+    // si ya estamos cargando o no hay más, salimos
     if (loading || !hasMore) return;
 
+    // si este offset ya fue solicitado (evita doble petición), salimos
+    if (requestedOffsetsRef.current.has(offset) || inflightOffsetsRef.current.has(offset)) {
+      return;
+    }
+
+    // marcamos offset como en vuelo
+    inflightOffsetsRef.current.add(offset);
     setLoading(true);
 
-    fetch(`https://pokeapi.co/api/v2/pokemon?limit=50&offset=${offset}`)
-      .then(res => res.json())
-      .then(async data => {
-        const newData = await Promise.all(
-          data.results.map(p =>
-            fetch(p.url)
-              .then(res => res.json())
-              .then(details => ({
-                id: details.id,
-                name: details.name,
-                sprite:
-                  details.sprites.versions["generation-viii"].icons.front_default ||
-                  details.sprites.front_default,
-                types: details.types.map(t => t.type.name),
-              }))
-          )
-        );
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
+      if (!res.ok) throw new Error("Error fetching list");
+      const data = await res.json();
 
-        setPokemonList(prev => [...prev, ...newData]);
-        setOffset(prev => prev + 50);
+      const newData = await Promise.all(
+        (data.results || []).map(async (p) => {
+          const detailsRes = await fetch(p.url);
+          if (!detailsRes.ok) throw new Error("Error fetching details");
+          const details = await detailsRes.json();
+          return {
+            id: details.id,
+            name: details.name,
+            sprite:
+              details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+              details.sprites?.front_default ||
+              "",
+            types: details.types.map((t) => t.type.name),
+          };
+        })
+      );
 
-        if (data.results.length < 50) {
-          setHasMore(false);
-        }
-
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
+      // Dedupe y añadir: usamos Map para garantizar únicos por id
+      setPokemonList((prev) => {
+        const map = new Map();
+        // añadimos prev primero para mantener orden (luego los nuevos pueden sobrescribir si hay cambios)
+        prev.forEach((poke) => map.set(poke.id, poke));
+        newData.forEach((poke) => map.set(poke.id, poke));
+        // devolvemos array ordenado por id (opcional, coherencia)
+        return Array.from(map.values()).sort((a, b) => a.id - b.id);
       });
+
+      // marcamos offset como ya solicitado (para evitar futuras peticiones al mismo offset)
+      requestedOffsetsRef.current.add(offset);
+
+      // avanzamos offset para la próxima carga
+      setOffset((prev) => prev + limit);
+
+      // si la respuesta trae menos que el limit, no hay más páginas
+      if (!data.results || data.results.length < limit) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Error en loadPokemons:", err);
+    } finally {
+      // quitamos de inflight y actualizamos loading
+      inflightOffsetsRef.current.delete(offset);
+      setLoading(false);
+    }
   };
 
-  // Load first batch
+  // Load first batch (componentDidMount)
   useEffect(() => {
     loadPokemons();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intencional: solo al montar
 
   // Detect scroll bottom
   useEffect(() => {
@@ -147,7 +181,7 @@ function PostList() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore]);
+  }, [loading, hasMore]); // reactirá a cambios en loading/hasMore
 
   // ------------------------------------
   // Filter & sorting logic (unchanged)
@@ -155,16 +189,17 @@ function PostList() {
   const filteredAndSortedList = useMemo(() => {
     let result = [...pokemonList];
 
+    // 1. Buscador (Search)
     if (searchTerm) {
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
+    // 2. Filtrar per Tipus
     if (selectedType) {
       result = result.filter(p => p.types.includes(selectedType));
     }
 
+    // 3. Ordenar
     result.sort((a, b) => {
       switch (sortOrder) {
         case "id_asc": return a.id - b.id;
@@ -178,25 +213,64 @@ function PostList() {
     return result;
   }, [pokemonList, searchTerm, selectedType, sortOrder]);
 
+  // Si cambias filtros o buscador, probablemente quieras reiniciar la paginación para traer
+  // resultados consistentes con la nueva query. Aquí lo hacemos sin romper la estructura:
+  // - Limpiamos lista y offsets solicitados, volvemos a empezar.
+  // Puedes quitar este efecto si prefieres que los filtros se apliquen sobre lo ya cargado.
+  useEffect(() => {
+    // Si el usuario cambia el tipo o la búsqueda, reiniciamos la carga para obtener todos los resultados
+    // (sin esto, el filtro solo afecta a lo ya descargado)
+    // NOTA: si prefieres no reiniciar la descarga, comenta todo el contenido de este effect.
+    const resetAndReload = async () => {
+      // reiniciamos estado lazy
+      setPokemonList([]);
+      setOffset(0);
+      setHasMore(true);
+      requestedOffsetsRef.current.clear();
+      inflightOffsetsRef.current.clear();
+      // carga inicial tras reinicio
+      await loadPokemons();
+    };
+
+    // Sólo queremos reiniciar cuando cambia selectedType o searchTerm
+    // (y no en el primer montaje)
+    // Para evitar llamar al montar (donde ya llamamos loadPokemons), comprobamos requestedOffsetsRef
+    // Si aún no hay offsets solicitados (vacío) y pokemonList vacío, no hacemos reset aquí.
+    if (requestedOffsetsRef.current.size === 0 && pokemonList.length === 0) {
+      // ya se ejecutará el load inicial en el otro useEffect
+      return;
+    }
+
+    // Llamamos al reset (pero no en el primer render)
+    resetAndReload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedType, searchTerm]); // reinicia cuando cambia filtro o search
+
   return (
     <div className="pokedex-container">
+      {/* Capçalera */}
       <header className="detail-header2">
+        
+        {/* 3. USA LA VARIABLE EN EL LINK */}
         <Link to={backDestination} className="back-btn">
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
         </Link>
+        
         <h1 className="title">Pokédex</h1>
       </header>
 
+      {/* Buscador */}
       <div className="search-wrapper">
-        <input
-          type="text"
-          className="search-bar"
-          placeholder="Buscar"
+        <input 
+          type="text" 
+          className="search-bar" 
+          placeholder="Buscar" 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
+      {/* Filtres Botons */}
       <div className="filters">
         <button className="filter-btn" onClick={() => setShowTypeModal(true)}>
           {selectedType ? TYPE_CONFIG[selectedType].name : "Tipos"} <span>▼</span>
@@ -206,6 +280,7 @@ function PostList() {
         </button>
       </div>
 
+      {/* Grid de Pokémons */}
       <div className="pokemon-grid">
         {filteredAndSortedList.map((p) => (
           <Link to={`/PostDetail/${p.id}`} state={selectionState} key={p.id} className="pokemon-card-link">
@@ -217,16 +292,16 @@ function PostList() {
                 <span className="pokemon-id">Nº {String(p.id).padStart(4, '0')}</span>
                 <span className="pokemon-name">{p.name}</span>
                 <div className="types-row">
-                  {p.types.map((type) =>
-                    TYPE_ICONS[type] ? (
+                  {p.types.map((type) => (
+                    TYPE_ICONS[type] ? ( 
                       <img
-                        key={type}
-                        src={TYPE_ICONS[type]}
-                        alt={type}
-                        className="type-icon-mini"
+                        key={type} 
+                        src={TYPE_ICONS[type]} 
+                        alt={type} 
+                        className="type-icon-mini" 
                       />
                     ) : null
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
@@ -236,20 +311,18 @@ function PostList() {
 
       {/* Loader debajo */}
       {loading && <div className="loader">Cargando...</div>}
+      {!hasMore && <div className="loader">No hay más pokémon.</div>}
 
-      {/* --- MODAL DE TIPOS --- */}
+      {/* --- MODAL DE TIPUS --- */}
       {showTypeModal && (
         <div className="modal-overlay" onClick={() => setShowTypeModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3 className="modal-title">Seleccione el tipo</h3>
             <div className="modal-options-grid">
-              <button
-                className="type-option-btn"
-                style={{ background: "#333" }}
-                onClick={() => {
-                  setSelectedType(null);
-                  setShowTypeModal(false);
-                }}
+              <button 
+                className="type-option-btn" 
+                style={{ background: "#333" }} 
+                onClick={() => { setSelectedType(null); setShowTypeModal(false); }}
               >
                 Todos
               </button>
@@ -271,7 +344,7 @@ function PostList() {
         </div>
       )}
 
-      {/* --- MODAL ORDENAR --- */}
+      {/* --- MODAL D'ORDENAR --- */}
       {showSortModal && (
         <div className="modal-overlay" onClick={() => setShowSortModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -293,6 +366,7 @@ function PostList() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
