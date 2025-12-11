@@ -18,10 +18,12 @@ body {
   min-height: 100vh;
   position: relative;
   background-color: #F2F2F2;
-  /* En lugar de limitar a 480px, dejamos que crezca pero lo centramos */
-  margin: 0 auto; 
+  margin: 0 auto;
+  overflow-y: auto; /* Permite scroll vertical si el contenido excede la pantalla */
 }
 
+
+ 
 /* --- HERO IMAGE (Fondo Greninja) --- */
 .home-hero {
   width: 100%;
@@ -253,3 +255,4 @@ body {
 .daily-card:hover {
   transform: scale(1.03);
 }
+

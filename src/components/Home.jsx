@@ -74,93 +74,118 @@ function Home() {
   }, [pokemonList, searchTerm]);
 
   return (
-    <div className="home-container">
-      
-      {/* 1. HERO IMAGE */}
-      <div 
-        className="home-hero"
-        style={{ backgroundImage: `url(${Greninja})` }}
-      ></div>
+  <div className="home-container">
+    
+    {/* 1. HERO IMAGE */}
+    <div 
+      className="home-hero"
+      style={{ backgroundImage: `url(${Greninja})` }}
+    ></div>
 
-      {/* 2. TARJETA NEGRA (Buscador) */}
-      <div className="search-card-dark">
-        <h2 className="home-title">
-          Explora el <br /> Mundo Pokémon !
-        </h2>
+    {/* 2. TARJETA NEGRA (Buscador) */}
+    <div className="search-card-dark">
+      <h2 className="home-title">
+        Explora el <br /> Mundo Pokémon !
+      </h2>
 
-        <div className="search-input-wrapper">
-            <input 
-              type="text" 
-              className="search-bar" 
-              placeholder="Buscar Pokémon..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
-
-        {/* LISTA DESPLEGABLE */}
-        {searchTerm && filteredList.length > 0 && (
-          <ul className="search-dropdown">
-            {filteredList.slice(0, 8).map((p) => (
-              <li key={p.id}>
-                <Link to={`/PostDetail/${p.id}`} className="search-item-link">
-                  {/* AÑADIDO: loading="lazy" para que el navegador gestione la carga */}
-                  <img 
-                    src={p.sprite} 
-                    alt={p.name} 
-                    className="search-item-img" 
-                    loading="lazy" 
-                  />
-                  <div className="search-item-text">
-                    <span className="search-name">{p.name}</span>
-                    <span className="search-id">#{String(p.id).padStart(4, '0')}</span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {searchTerm && filteredList.length === 0 && (
-            <div className="search-dropdown empty">
-                <p>No se encontraron resultados.</p>
-            </div>
-        )}
+      <div className="search-input-wrapper">
+          <input 
+            type="text" 
+            className="search-bar" 
+            placeholder="Buscar Pokémon..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
       </div>
- 
-      {/* POKÉMON DEL DÍA */}
-      {dailyPokemon && (
-        <div className="daily-container">
-          <h2 className="daily-title">Pokémon del Día</h2>
 
-          <Link to={`/PostDetail/${dailyPokemon.id}`} className="daily-card-link">
-            <div className="daily-card">
-              <div className="daily-info">
-                <h3 className="daily-name">{dailyPokemon.name}</h3>
-                <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
-
-                <div className="daily-types">
-                  {dailyPokemon.types.map(type => (
-                    <span key={type} className={`type-badge type-${type}`}>
-                      {type}
-                    </span>
-                  ))}
+      {/* LISTA DESPLEGABLE */}
+      {searchTerm && filteredList.length > 0 && (
+        <ul className="search-dropdown">
+          {filteredList.slice(0, 8).map((p) => (
+            <li key={p.id}>
+              <Link to={`/PostDetail/${p.id}`} className="search-item-link">
+                <img 
+                  src={p.sprite} 
+                  alt={p.name} 
+                  className="search-item-img" 
+                  loading="lazy" 
+                />
+                <div className="search-item-text">
+                  <span className="search-name">{p.name}</span>
+                  <span className="search-id">#{String(p.id).padStart(4, '0')}</span>
                 </div>
-              </div>
-
-              <img 
-                src={dailyPokemon.sprite}
-                alt={dailyPokemon.name}
-                className="daily-img"
-                loading="lazy"
-              />
-            </div>
-          </Link>
-        </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
 
+      {searchTerm && filteredList.length === 0 && (
+          <div className="search-dropdown empty">
+              <p>No se encontraron resultados.</p>
+          </div>
+      )}
     </div>
-  );
+
+    {/* POKÉMON DEL DÍA */}
+    {dailyPokemon && (
+      <div className="daily-container">
+        <h2 className="daily-title">Pokémon del Día</h2>
+
+        <Link to={`/PostDetail/${dailyPokemon.id}`} className="daily-card-link">
+          <div className="daily-card">
+            <div className="daily-info">
+              <h3 className="daily-name">{dailyPokemon.name}</h3>
+              <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
+
+              <div className="daily-types">
+                {dailyPokemon.types.map(type => (
+                  <span key={type} className={`type-badge type-${type}`}>
+                    {type}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <img 
+              src={dailyPokemon.sprite}
+              alt={dailyPokemon.name}
+              className="daily-img"
+              loading="lazy"
+            />
+          </div>
+        </Link>
+      </div>
+    )}
+
+    {/* EQUIPO 1 */}
+    <div className="daily-container">
+      <h2 className="daily-title">Equipo 1</h2>
+
+      <div className="daily-card">
+        <div className="daily-info">
+          <h3 className="daily-name">Equipo 1</h3>
+          <span className="daily-id">#0001</span>
+
+          <div className="daily-types">
+            <span className="type-badge type-fire">Fire</span>
+            <span className="type-badge type-water">Water</span>
+            <span className="type-badge type-grass">Grass</span>
+          </div>
+        </div>
+
+        <img 
+          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" 
+          alt="Equipo 1" 
+          className="daily-img"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+  </div>
+);
+
 }
 
 export default Home;
