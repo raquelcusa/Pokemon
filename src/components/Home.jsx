@@ -8,50 +8,52 @@ function Home() {
   const [pokemonList, setPokemonList] = useState([]);
   const [dailyPokemon, setDailyPokemon] = useState(null);
 
-  // 1. Cargar la lista completa para que el buscador tenga datos + Pokémon del Día
-useEffect(() => {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const storedDaily = JSON.parse(localStorage.getItem("dailyPokemon"));
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const storedDaily = JSON.parse(localStorage.getItem("dailyPokemon"));
 
-  // Si ya hay Pokémon del día para hoy, lo usamos
-  if (storedDaily && storedDaily.date === today) {
-    setDailyPokemon(storedDaily.pokemon);
-  }
+    // 1. CARGA DE LA LISTA (OPTIMIZADA)
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=800")
+      .then((res) => res.json())
+      .then((data) => {
+        // AQUÍ ESTÁ EL TRUCO: No hacemos fetch individual.
+        // Construimos los datos con lo que ya tenemos.
+        const optimizedList = data.results.map((p) => {
+          // La url viene como "https://pokeapi.co/api/v2/pokemon/25/"
+          // Cortamos el string para sacar el ID (25)
+          const urlParts = p.url.split("/");
+          const id = urlParts[urlParts.length - 2]; 
 
-  fetch("https://pokeapi.co/api/v2/pokemon?limit=800")
-    .then((res) => res.json())
-    .then((data) => {
-      return Promise.all(
-        data.results.map((p) =>
-          fetch(p.url)
-            .then((res) => res.json())
-            .then((details) => ({
-              id: details.id,
-              name: details.name,
-              sprite:
-                details.sprites.versions["generation-viii"].icons.front_default ||
-                details.sprites.front_default,
-            }))
-        )
-      ).then((fullList) => {
-        setPokemonList(fullList);
+          return {
+            id: parseInt(id),
+            name: p.name,
+            // Construimos la URL de la imagen manualmente sin llamar a la API
+            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+          };
+        });
 
-        // Si no hay Pokémon del día para hoy, elegimos uno nuevo
-        if (!storedDaily || storedDaily.date !== today) {
-          const randomId = Math.floor(Math.random() * fullList.length);
-          const chosen = fullList[randomId];
+        setPokemonList(optimizedList);
 
-          fetch(`https://pokeapi.co/api/v2/pokemon/${chosen.id}`)
+        // 2. LÓGICA DEL POKÉMON DEL DÍA
+        // Si ya existe hoy, lo usamos
+        if (storedDaily && storedDaily.date === today) {
+          setDailyPokemon(storedDaily.pokemon);
+        } else {
+          // Si no, elegimos uno al azar de la lista optimizada
+          const randomId = Math.floor(Math.random() * optimizedList.length);
+          const chosenBasic = optimizedList[randomId];
+
+          // Solo hacemos ESTE fetch extra para tener los detalles (tipos) del Pokémon del día
+          fetch(`https://pokeapi.co/api/v2/pokemon/${chosenBasic.id}`)
             .then((res) => res.json())
             .then((details) => {
               const daily = {
                 id: details.id,
                 name: details.name,
-                sprite:
-                  details.sprites.other["official-artwork"].front_default ||
-                  details.sprites.front_default,
+                sprite: details.sprites.other["official-artwork"].front_default || details.sprites.front_default,
                 types: details.types.map((t) => t.type.name),
               };
+              
               setDailyPokemon(daily);
               localStorage.setItem(
                 "dailyPokemon",
@@ -59,12 +61,11 @@ useEffect(() => {
               );
             });
         }
-      });
-    })
-    .catch((err) => console.error(err));
-}, []);
+      })
+      .catch((err) => console.error("Error cargando Pokemons:", err));
+  }, []);
 
-  // 2. Lógica del filtrado
+  // Lógica del filtrado (Se mantiene igual)
   const filteredList = useMemo(() => {
     if (!searchTerm) return [];
     return pokemonList.filter(p => 
@@ -75,7 +76,7 @@ useEffect(() => {
   return (
     <div className="home-container">
       
-      {/* 1. HERO IMAGE (Foto de arriba) */}
+      {/* 1. HERO IMAGE */}
       <div 
         className="home-hero"
         style={{ backgroundImage: `url(${Greninja})` }}
@@ -97,13 +98,19 @@ useEffect(() => {
             />
         </div>
 
-        {/* LISTA DESPLEGABLE (Solo aparece si escribes) */}
+        {/* LISTA DESPLEGABLE */}
         {searchTerm && filteredList.length > 0 && (
           <ul className="search-dropdown">
             {filteredList.slice(0, 8).map((p) => (
               <li key={p.id}>
                 <Link to={`/PostDetail/${p.id}`} className="search-item-link">
-                  <img src={p.sprite} alt={p.name} className="search-item-img" />
+                  {/* AÑADIDO: loading="lazy" para que el navegador gestione la carga */}
+                  <img 
+                    src={p.sprite} 
+                    alt={p.name} 
+                    className="search-item-img" 
+                    loading="lazy" 
+                  />
                   <div className="search-item-text">
                     <span className="search-name">{p.name}</span>
                     <span className="search-id">#{String(p.id).padStart(4, '0')}</span>
@@ -114,7 +121,6 @@ useEffect(() => {
           </ul>
         )}
 
-        {/* Mensaje opcional si no encuentra nada */}
         {searchTerm && filteredList.length === 0 && (
             <div className="search-dropdown empty">
                 <p>No se encontraron resultados.</p>
@@ -122,35 +128,36 @@ useEffect(() => {
         )}
       </div>
  
-  {/* NUEVO: POKÉMON DEL DÍA */}
-{dailyPokemon && (
-  <div className="daily-container">
-    <h2 className="daily-title">Pokémon del Día</h2>
+      {/* POKÉMON DEL DÍA */}
+      {dailyPokemon && (
+        <div className="daily-container">
+          <h2 className="daily-title">Pokémon del Día</h2>
 
-    <Link to={`/PostDetail/${dailyPokemon.id}`} className="daily-card-link">
-      <div className="daily-card">
-        <div className="daily-info">
-          <h3 className="daily-name">{dailyPokemon.name}</h3>
-          <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
+          <Link to={`/PostDetail/${dailyPokemon.id}`} className="daily-card-link">
+            <div className="daily-card">
+              <div className="daily-info">
+                <h3 className="daily-name">{dailyPokemon.name}</h3>
+                <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
 
-          <div className="daily-types">
-            {dailyPokemon.types.map(type => (
-              <span key={type} className={`type-badge type-${type}`}>
-                {type}
-              </span>
-            ))}
-          </div>
+                <div className="daily-types">
+                  {dailyPokemon.types.map(type => (
+                    <span key={type} className={`type-badge type-${type}`}>
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <img 
+                src={dailyPokemon.sprite}
+                alt={dailyPokemon.name}
+                className="daily-img"
+                loading="lazy"
+              />
+            </div>
+          </Link>
         </div>
-
-        <img 
-          src={dailyPokemon.sprite}
-          alt={dailyPokemon.name}
-          className="daily-img"
-        />
-      </div>
-    </Link>
-  </div>
-)}
+      )}
 
     </div>
   );
