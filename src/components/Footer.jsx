@@ -16,17 +16,17 @@ function Footer() {
       </Link>
 
       {/* Botó Cerca */}
-      <Link to="/PostList" className="nav-item">
+      <Link to="/postList" className="nav-item">
         <img src={ICONO_BUSQUEDA} alt="Buscar" className="nav-icon" />
       </Link>
 
       {/* Botó Pokédex (Actiu) */}
-      <Link to="/Teams" className="nav-item">
-        <img src={ICONO_POKEDEX} alt="Pokedex" className="nav-icon" />
+      <Link to="/teams" className="nav-item">
+        <img src={ICONO_POKEDEX} alt="Teams" className="nav-icon" />
       </Link>
 
       {/* Botó Favorits */}
-      <Link to="/Favorits" className="nav-item">
+      <Link to="/favorits" className="nav-item">
         <img src={ICONO_FAVORITOS} alt="Favoritos" className="nav-icon" />
       </Link>
 

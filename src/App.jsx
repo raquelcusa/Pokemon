@@ -7,6 +7,7 @@ import Home from './components/Home';
 import PostList from './components/PostList';
 import PostDetail from './components/PostDetail';
 import FavoritesPage from './components/FavoritesPage';
+import Teams from './components/Teams'; // Importar
 
 
 function App() {
@@ -17,9 +18,10 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home/>} />
-        <Route path="/PostList" element={<PostList/>}/>
-        <Route path="/PostDetail/:id" element={<PostDetail/>}/>
-        <Route path="/Favorits" element={<FavoritesPage />} />
+        <Route path="/postlist" element={<PostList/>}/>
+        <Route path="/postdetail/:id" element={<PostDetail/>}/>
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/favorits" element={<FavoritesPage />} />
        </Routes>
       
       <Footer />

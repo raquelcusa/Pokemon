@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
 import { useFavorites } from '../context/FavoritesContext';
 import "./PostDetail.css";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom"; // Añadir useLocation
+import { useTeams } from '../context/TeamsContext'; // Importar Teams Context
 
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
 import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
 import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
-
+import ICONO_GUARDAR from '/src/images/icono_guardar/guardar.svg'; 
 /* -- IMPORTACIÓ D'ICONES DE TIPUS -- */
 import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
 import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
@@ -83,9 +84,16 @@ const STAT_NAMES = {
 function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); 
+  const { updateSlot } = useTeams(); 
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
   const [evolutions, setEvolutions] = useState([]); 
+
+  const selectionMode = location.state?.selectionMode;
+  const teamId = location.state?.teamId;
+  const slotIndex = location.state?.slotIndex;
+
   // Estado nuevo para guardar debilidades y fortalezas
   const [typeRelations, setTypeRelations] = useState({ weaknesses: [], strengths: [] });
   const [loading, setLoading] = useState(true);
@@ -164,6 +172,19 @@ function PostDetail() {
     fetchData();
   }, [id]);
 
+  const handleSaveToTeam = () => {
+    // Creamos un objeto simple del pokemon para guardar en el equipo (no hace falta guardar todo el json gigante)
+    const pokemonForTeam = {
+       id: pokemon.id,
+       name: pokemon.name,
+       sprite: pokemon.sprites.versions["generation-viii"].icons.front_default || pokemon.sprites.front_default,
+       types: pokemon.types // opcional, si lo quieres usar para filtrar luego
+    };
+
+    updateSlot(teamId, slotIndex, pokemonForTeam);
+    navigate('/teams'); // Redirigir a equipos
+  };
+
   const getEvoChain = (chain) => {
     let evos = [];
     evos.push(chain.species.name); 
@@ -202,24 +223,25 @@ function PostDetail() {
       
       {/* HEADER */}
       <header className="detail-header">
-        {/* Botón Atrás (Izquierda) */}
-        <button 
-            onClick={() => navigate(-1)} 
-            className="header-btn" 
-        >
+        <button onClick={() => navigate(-1)} className="header-btn">
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon" />
         </button>
 
-        {/* Botón Favorito (Derecha) */}
-        <button 
-            onClick={() => toggleFavorite(pokemon)}    
-            className="header-btn"
-        >
-            {isFavorite(pokemon.id) ?  
+        {/* LOGICA CONDICIONAL DEL BOTÓN DERECHO */}
+        {selectionMode ? (
+           // SI VENIMOS DE TEAMS: Mostramos botón Guardar
+           <button onClick={handleSaveToTeam} className="header-btn">
+              <img src={ICONO_GUARDAR} alt="Guardar" className="fav-icon" /> 
+           </button>
+        ) : (
+           // SI ES NORMAL: Mostramos Corazón (Tu código original)
+           <button onClick={() => toggleFavorite(pokemon)} className="header-btn">
+             {isFavorite(pokemon.id) ?  
                 <img src={HEARTFULL} alt="Favorito" className="fav-icon" /> : 
                 <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />
-            }
-        </button>
+             }
+           </button>
+        )}
       </header>
 
       {/* IMATGE */}

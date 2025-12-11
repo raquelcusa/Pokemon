@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import "./PostList.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
 
 /* -- ICONES TIPUS --*/
@@ -69,6 +69,8 @@ const TYPE_CONFIG = {
 function PostList() {
   const [pokemonList, setPokemonList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation(); 
+  const selectionState = location.state; // Aquí vendrá { selectionMode, teamId, slotIndex }
   
   // Estats per Filtres i Orde
   const [selectedType, setSelectedType] = useState(null); // null significa "todos"
@@ -161,7 +163,7 @@ function PostList() {
       {/* Grid de Pokémons */}
       <div className="pokemon-grid">
         {filteredAndSortedList.map((p) => (
-          <Link to={`/PostDetail/${p.id}`} key={p.id} className="pokemon-card-link">
+          <Link to={`/PostDetail/${p.id}`} state={selectionState} key={p.id} className="pokemon-card-link">
             <div className="pokemon-card">
               <div className="card-image-container">
                 <img src={p.sprite} alt={p.name} className="pokemon-img" />

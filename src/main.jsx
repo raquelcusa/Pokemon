@@ -4,14 +4,16 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { FavoritesProvider } from './context/FavoritesContext';
-
+import { TeamsProvider } from './context/TeamsContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <FavoritesProvider>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <TeamsProvider> {/* <--- AÑADIR ESTO AQUÍ */}
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </TeamsProvider>
     </FavoritesProvider>
   </StrictMode>
 )
