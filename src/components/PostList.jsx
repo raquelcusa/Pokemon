@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./PostList.css";
 import { Link, useLocation } from "react-router-dom";
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
@@ -44,7 +44,6 @@ const TYPE_ICONS = {
   flying: Tipo_volador_icono_EP,
 };
 
-// Diccionari de colors i traduccions per als tipus
 const TYPE_CONFIG = {
   normal: { name: "Normal", color: "#A8A77A" },
   fire: { name: "Fuego", color: "#E62829" },
@@ -82,171 +81,184 @@ function PostList() {
   const [showSortModal, setShowSortModal] = useState(false);
 
   // --- DATA STATE ---
-  // 1. "allReferences": The lightweight list of ALL pokemon {name, url} matching the Type filter.
-  const [allReferences, setAllReferences] = useState([]);
-  
-  // 2. "processedReferences": The 'allReferences' list after Search and Sorting are applied.
-  const [processedReferences, setProcessedReferences] = useState([]);
-
-  // 3. "displayedPokemon": The heavy list of Pokemon with images currently shown on screen.
-  const [displayedPokemon, setDisplayedPokemon] = useState([]);
+  const [allReferences, setAllReferences] = useState([]); // Raw data from API
+  const [processedReferences, setProcessedReferences] = useState([]); // Sorted/Filtered list
+  const [displayedPokemon, setDisplayedPokemon] = useState([]); // Visible images
 
   // --- LAZY LOADING STATE ---
   const [offset, setOffset] = useState(0);
   const LIMIT = 50; 
-  const [isLoadingRefs, setIsLoadingRefs] = useState(false); // Loading the big list
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false); // Loading the images
+  const [isLoadingRefs, setIsLoadingRefs] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  // Helper to extract ID from URL
+  // Helper
   const getIdFromUrl = (url) => {
     const parts = url.split('/');
     return parseInt(parts[parts.length - 2], 10);
   };
 
   // ==========================================
-  // STEP 1: LOAD REFERENCES (Lightweight List)
+  // STEP 1: LOAD REFERENCES (API Call)
   // ==========================================
-  // This runs when the TYPE changes or on Mount.
   useEffect(() => {
+    const controller = new AbortController(); // To cancel old requests
+
     const fetchReferences = async () => {
       setIsLoadingRefs(true);
-      setOffset(0);
-      setDisplayedPokemon([]);
-      setAllReferences([]); // Clear previous data
+      
+      // Crucial: Clear everything when type changes
+      setAllReferences([]);
+      setDisplayedPokemon([]); 
+      setProcessedReferences([]);
+      setHasMore(true);
 
       try {
         let results = [];
         if (selectedType) {
-          // Fetch ALL pokemon of specific type
-          const res = await fetch(`https://pokeapi.co/api/v2/type/${selectedType}`);
+          const res = await fetch(`https://pokeapi.co/api/v2/type/${selectedType}`, { signal: controller.signal });
           const data = await res.json();
-          // Normalize structure: API returns { pokemon: { name, url } }
           results = data.pokemon.map(p => p.pokemon);
         } else {
-          // Fetch ALL pokemon (Limit 10000 to get everything)
-          const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=1025`);
+          const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=1025`, { signal: controller.signal });
           const data = await res.json();
           results = data.results;
         }
 
-        // Filter out ID > 10000 (special forms) if desired
-        results = results.filter(p => getIdFromUrl(p.url) < 1026);
+        results = results.filter(p => getIdFromUrl(p.url) < 10000); // Filter variants
+        
+        if (!controller.signal.aborted) {
+            setAllReferences(results);
+        }
 
-        setAllReferences(results);
       } catch (error) {
-        console.error("Error fetching references:", error);
+        if (error.name !== 'AbortError') console.error("Error fetching references:", error);
       } finally {
-        setIsLoadingRefs(false);
+        if (!controller.signal.aborted) setIsLoadingRefs(false);
       }
     };
 
     fetchReferences();
-  }, [selectedType]); // Only re-run if Type changes
+
+    return () => controller.abort(); // Cleanup on new click
+  }, [selectedType]); 
 
   // ==========================================
-  // STEP 2: PROCESS REFERENCES (Sort & Filter)
+  // STEP 2: PROCESS & INITIAL LOAD (Combined)
   // ==========================================
-  // This runs when the References load, OR Search/Sort changes.
   useEffect(() => {
-    if (allReferences.length === 0 && !isLoadingRefs) return;
+    // If refs are still loading or empty, do nothing yet
+    if (isLoadingRefs || allReferences.length === 0) return;
 
-    let processed = [...allReferences];
+    const processAndLoadFirstBatch = async () => {
+        setIsLoadingDetails(true);
 
-    // A. Apply Search Filter
-    if (searchTerm) {
-      processed = processed.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    }
+        // 1. Filter & Sort
+        let processed = [...allReferences];
+        if (searchTerm) {
+            processed = processed.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
 
-    // B. Apply Sorting
-    processed.sort((a, b) => {
-      const idA = getIdFromUrl(a.url);
-      const idB = getIdFromUrl(b.url);
+        processed.sort((a, b) => {
+            const idA = getIdFromUrl(a.url);
+            const idB = getIdFromUrl(b.url);
+            switch (sortOrder) {
+                case "id_asc": return idA - idB;
+                case "id_desc": return idB - idA;
+                case "name_asc": return a.name.localeCompare(b.name);
+                case "name_desc": return b.name.localeCompare(a.name);
+                default: return idA - idB;
+            }
+        });
 
-      switch (sortOrder) {
-        case "id_asc": return idA - idB;
-        case "id_desc": return idB - idA;
-        case "name_asc": return a.name.localeCompare(b.name);
-        case "name_desc": return b.name.localeCompare(a.name);
-        default: return idA - idB;
-      }
-    });
+        // 2. Save Processed List
+        setProcessedReferences(processed);
 
-    setProcessedReferences(processed);
-    setOffset(0); // Reset pagination
-    setDisplayedPokemon([]); // Clear displayed list to force reload with new order
-    setHasMore(true);
+        // 3. FORCE FETCH THE FIRST 50 ITEMS IMMEDIATELY
+        // This bypasses the scroll listener/loading flags to ensure the first click always works.
+        const initialBatch = processed.slice(0, LIMIT);
+        
+        try {
+            const detailsPromises = initialBatch.map(async (p) => {
+                const res = await fetch(p.url);
+                const details = await res.json();
+                return {
+                    id: details.id,
+                    name: details.name,
+                    sprite: details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+                            details.sprites?.front_default || "",
+                    types: details.types.map((t) => t.type.name),
+                };
+            });
 
-  }, [allReferences, searchTerm, sortOrder, isLoadingRefs]);
+            const initialDetails = await Promise.all(detailsPromises);
+            
+            setDisplayedPokemon(initialDetails); // Set directly, no duplication check needed for 1st batch
+            setOffset(LIMIT); // Next batch starts at 50
+            setHasMore(processed.length > LIMIT);
+
+        } catch (error) {
+            console.error("Error loading initial batch", error);
+        } finally {
+            setIsLoadingDetails(false);
+        }
+    };
+
+    processAndLoadFirstBatch();
+
+  }, [allReferences, searchTerm, sortOrder, isLoadingRefs]); 
 
   // ==========================================
-  // STEP 3: LAZY LOAD DETAILS (Images/Types)
+  // STEP 3: SCROLL LOADER (Page 2+)
   // ==========================================
-  // This function fetches the details for the next chunk of processedReferences.
   const loadNextBatch = useCallback(async () => {
+    // If we are already loading or finished, stop.
     if (isLoadingDetails || !hasMore || processedReferences.length === 0) return;
 
     setIsLoadingDetails(true);
 
-    // Calculate the slice we need
     const end = offset + LIMIT;
     const chunk = processedReferences.slice(offset, end);
 
     if (chunk.length === 0) {
-      setHasMore(false);
-      setIsLoadingDetails(false);
-      return;
+        setHasMore(false);
+        setIsLoadingDetails(false);
+        return;
     }
 
     try {
-      const detailsPromises = chunk.map(async (p) => {
-        const res = await fetch(p.url);
-        const details = await res.json();
-        return {
-          id: details.id,
-          name: details.name,
-          sprite: details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
-                  details.sprites?.front_default || "",
-          types: details.types.map((t) => t.type.name),
-        };
-      });
+        const detailsPromises = chunk.map(async (p) => {
+            const res = await fetch(p.url);
+            const details = await res.json();
+            return {
+                id: details.id,
+                name: details.name,
+                sprite: details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+                        details.sprites?.front_default || "",
+                types: details.types.map((t) => t.type.name),
+            };
+        });
 
-      const newDetails = await Promise.all(detailsPromises);
+        const newDetails = await Promise.all(detailsPromises);
 
-      setDisplayedPokemon((prev) => {
-    // Create a Set of existing IDs to compare against efficiently
-    const existingIds = new Set(prev.map((p) => p.id));
-    
-    // Only keep the new details that DO NOT already exist in the list
-    const uniqueNewDetails = newDetails.filter((p) => !existingIds.has(p.id));
-    
-    // Return the combined list
-    return [...prev, ...uniqueNewDetails];
-});
-      setOffset(prev => prev + LIMIT);
-      
-      if (end >= processedReferences.length) {
-        setHasMore(false);
-      }
+        setDisplayedPokemon((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
+            const uniqueNewDetails = newDetails.filter((p) => !existingIds.has(p.id));
+            return [...prev, ...uniqueNewDetails];
+        });
+
+        setOffset(prev => prev + LIMIT);
+        if (end >= processedReferences.length) setHasMore(false);
 
     } catch (error) {
-      console.error("Error fetching details:", error);
+        console.error("Error fetching next batch:", error);
     } finally {
-      setIsLoadingDetails(false);
+        setIsLoadingDetails(false);
     }
   }, [offset, processedReferences, isLoadingDetails, hasMore]);
 
-  // Trigger initial batch load when processedReferences updates
-  useEffect(() => {
-    if (processedReferences.length > 0 && displayedPokemon.length === 0) {
-      loadNextBatch();
-    }
-  }, [processedReferences, displayedPokemon.length, loadNextBatch]);
 
-
-  // ==========================================
-  // SCROLL HANDLER
-  // ==========================================
+  // Scroll Listener
   useEffect(() => {
     const handleScroll = () => {
       if (
