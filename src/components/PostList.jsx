@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import "./PostList.css";
 import { Link, useLocation } from "react-router-dom";
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
@@ -67,199 +67,213 @@ const TYPE_CONFIG = {
 };
 
 function PostList() {
-  const [pokemonList, setPokemonList] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation(); 
   const selectionState = location.state;
-  const selectionMode = location.state?.selectionMode; // Aquí vendrá { selectionMode, teamId, slotIndex }
+  const selectionMode = location.state?.selectionMode;
   const backDestination = selectionMode ? "/teams" : "/";
 
-  // Estats per Filtres i Orde
-  const [selectedType, setSelectedType] = useState(null); // null significa "todos"
-  const [sortOrder, setSortOrder] = useState("id_asc"); // id_asc, id_desc, name_asc, name_desc
+  // --- FILTERS & SORT STATE ---
+  const [selectedType, setSelectedType] = useState(null); 
+  const [sortOrder, setSortOrder] = useState("id_asc"); 
+  const [searchTerm, setSearchTerm] = useState("");
   
-  // Estats per visibilitat de Modals
+  // --- UI STATE ---
   const [showTypeModal, setShowTypeModal] = useState(false);
   const [showSortModal, setShowSortModal] = useState(false);
 
-  // ------------------------------
-  // LAZY LOAD states
-  // ------------------------------
+  // --- DATA STATE ---
+  // 1. "allReferences": The lightweight list of ALL pokemon {name, url} matching the Type filter.
+  const [allReferences, setAllReferences] = useState([]);
+  
+  // 2. "processedReferences": The 'allReferences' list after Search and Sorting are applied.
+  const [processedReferences, setProcessedReferences] = useState([]);
+
+  // 3. "displayedPokemon": The heavy list of Pokemon with images currently shown on screen.
+  const [displayedPokemon, setDisplayedPokemon] = useState([]);
+
+  // --- LAZY LOADING STATE ---
   const [offset, setOffset] = useState(0);
-  const limit = 50; // cantidad por batch
-  const [loading, setLoading] = useState(false);
+  const LIMIT = 50; 
+  const [isLoadingRefs, setIsLoadingRefs] = useState(false); // Loading the big list
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false); // Loading the images
   const [hasMore, setHasMore] = useState(true);
 
-  // refs para controlar offsets solicitados y peticiones en vuelo (evita duplicados)
-  const requestedOffsetsRef = useRef(new Set()); // offsets ya solicitados
-  const inflightOffsetsRef = useRef(new Set()); // offsets en curso
+  // Helper to extract ID from URL
+  const getIdFromUrl = (url) => {
+    const parts = url.split('/');
+    return parseInt(parts[parts.length - 2], 10);
+  };
 
-  // ------------------------------
-  // LOAD POKEMONS FUNCTION (Lazy Load) - VERSION ROBUSTA
-  // ------------------------------
-  const loadPokemons = async () => {
-    // si ya estamos cargando o no hay más, salimos
-    if (loading || !hasMore) return;
+  // ==========================================
+  // STEP 1: LOAD REFERENCES (Lightweight List)
+  // ==========================================
+  // This runs when the TYPE changes or on Mount.
+  useEffect(() => {
+    const fetchReferences = async () => {
+      setIsLoadingRefs(true);
+      setOffset(0);
+      setDisplayedPokemon([]);
+      setAllReferences([]); // Clear previous data
 
-    // si este offset ya fue solicitado (evita doble petición), salimos
-    if (requestedOffsetsRef.current.has(offset) || inflightOffsetsRef.current.has(offset)) {
+      try {
+        let results = [];
+        if (selectedType) {
+          // Fetch ALL pokemon of specific type
+          const res = await fetch(`https://pokeapi.co/api/v2/type/${selectedType}`);
+          const data = await res.json();
+          // Normalize structure: API returns { pokemon: { name, url } }
+          results = data.pokemon.map(p => p.pokemon);
+        } else {
+          // Fetch ALL pokemon (Limit 10000 to get everything)
+          const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=1025`);
+          const data = await res.json();
+          results = data.results;
+        }
+
+        // Filter out ID > 10000 (special forms) if desired
+        results = results.filter(p => getIdFromUrl(p.url) < 1026);
+
+        setAllReferences(results);
+      } catch (error) {
+        console.error("Error fetching references:", error);
+      } finally {
+        setIsLoadingRefs(false);
+      }
+    };
+
+    fetchReferences();
+  }, [selectedType]); // Only re-run if Type changes
+
+  // ==========================================
+  // STEP 2: PROCESS REFERENCES (Sort & Filter)
+  // ==========================================
+  // This runs when the References load, OR Search/Sort changes.
+  useEffect(() => {
+    if (allReferences.length === 0 && !isLoadingRefs) return;
+
+    let processed = [...allReferences];
+
+    // A. Apply Search Filter
+    if (searchTerm) {
+      processed = processed.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+
+    // B. Apply Sorting
+    processed.sort((a, b) => {
+      const idA = getIdFromUrl(a.url);
+      const idB = getIdFromUrl(b.url);
+
+      switch (sortOrder) {
+        case "id_asc": return idA - idB;
+        case "id_desc": return idB - idA;
+        case "name_asc": return a.name.localeCompare(b.name);
+        case "name_desc": return b.name.localeCompare(a.name);
+        default: return idA - idB;
+      }
+    });
+
+    setProcessedReferences(processed);
+    setOffset(0); // Reset pagination
+    setDisplayedPokemon([]); // Clear displayed list to force reload with new order
+    setHasMore(true);
+
+  }, [allReferences, searchTerm, sortOrder, isLoadingRefs]);
+
+  // ==========================================
+  // STEP 3: LAZY LOAD DETAILS (Images/Types)
+  // ==========================================
+  // This function fetches the details for the next chunk of processedReferences.
+  const loadNextBatch = useCallback(async () => {
+    if (isLoadingDetails || !hasMore || processedReferences.length === 0) return;
+
+    setIsLoadingDetails(true);
+
+    // Calculate the slice we need
+    const end = offset + LIMIT;
+    const chunk = processedReferences.slice(offset, end);
+
+    if (chunk.length === 0) {
+      setHasMore(false);
+      setIsLoadingDetails(false);
       return;
     }
 
-    // marcamos offset como en vuelo
-    inflightOffsetsRef.current.add(offset);
-    setLoading(true);
-
     try {
-      const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
-      if (!res.ok) throw new Error("Error fetching list");
-      const data = await res.json();
-
-      const newData = await Promise.all(
-        (data.results || []).map(async (p) => {
-          const detailsRes = await fetch(p.url);
-          if (!detailsRes.ok) throw new Error("Error fetching details");
-          const details = await detailsRes.json();
-          return {
-            id: details.id,
-            name: details.name,
-            sprite:
-              details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
-              details.sprites?.front_default ||
-              "",
-            types: details.types.map((t) => t.type.name),
-          };
-        })
-      );
-
-      // Dedupe y añadir: usamos Map para garantizar únicos por id
-      setPokemonList((prev) => {
-        const map = new Map();
-        // añadimos prev primero para mantener orden (luego los nuevos pueden sobrescribir si hay cambios)
-        prev.forEach((poke) => map.set(poke.id, poke));
-        newData.forEach((poke) => map.set(poke.id, poke));
-        // devolvemos array ordenado por id (opcional, coherencia)
-        return Array.from(map.values()).sort((a, b) => a.id - b.id);
+      const detailsPromises = chunk.map(async (p) => {
+        const res = await fetch(p.url);
+        const details = await res.json();
+        return {
+          id: details.id,
+          name: details.name,
+          sprite: details.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+                  details.sprites?.front_default || "",
+          types: details.types.map((t) => t.type.name),
+        };
       });
 
-      // marcamos offset como ya solicitado (para evitar futuras peticiones al mismo offset)
-      requestedOffsetsRef.current.add(offset);
+      const newDetails = await Promise.all(detailsPromises);
 
-      // avanzamos offset para la próxima carga
-      setOffset((prev) => prev + limit);
-
-      // si la respuesta trae menos que el limit, no hay más páginas
-      if (!data.results || data.results.length < limit) {
+      setDisplayedPokemon((prev) => {
+      // Create a Set of existing IDs to compare against efficiently
+      const existingIds = new Set(prev.map((p) => p.id));
+      
+      // Only keep the new details that DO NOT already exist in the list
+      const uniqueNewDetails = newDetails.filter((p) => !existingIds.has(p.id));
+      
+      // Return the combined list
+      return [...prev, ...uniqueNewDetails];
+});
+      setOffset(prev => prev + LIMIT);
+      
+      if (end >= processedReferences.length) {
         setHasMore(false);
       }
-    } catch (err) {
-      console.error("Error en loadPokemons:", err);
+
+    } catch (error) {
+      console.error("Error fetching details:", error);
     } finally {
-      // quitamos de inflight y actualizamos loading
-      inflightOffsetsRef.current.delete(offset);
-      setLoading(false);
+      setIsLoadingDetails(false);
     }
-  };
+  }, [offset, processedReferences, isLoadingDetails, hasMore]);
 
-  // Load first batch (componentDidMount)
+  // Trigger initial batch load when processedReferences updates
   useEffect(() => {
-    loadPokemons();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intencional: solo al montar
+    if (processedReferences.length > 0 && displayedPokemon.length === 0) {
+      loadNextBatch();
+    }
+  }, [processedReferences, displayedPokemon.length, loadNextBatch]);
 
-  // Detect scroll bottom
+
+  // ==========================================
+  // SCROLL HANDLER
+  // ==========================================
   useEffect(() => {
     const handleScroll = () => {
       if (
         window.innerHeight + window.scrollY >= document.body.offsetHeight - 300 &&
-        !loading &&
+        !isLoadingDetails &&
         hasMore
       ) {
-        loadPokemons();
+        loadNextBatch();
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore]); // reactirá a cambios en loading/hasMore
+  }, [loadNextBatch, isLoadingDetails, hasMore]);
 
-  // ------------------------------------
-  // Filter & sorting logic (unchanged)
-  // ------------------------------------
-  const filteredAndSortedList = useMemo(() => {
-    let result = [...pokemonList];
-
-    // 1. Buscador (Search)
-    if (searchTerm) {
-      result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    }
-
-    // 2. Filtrar per Tipus
-    if (selectedType) {
-      result = result.filter(p => p.types.includes(selectedType));
-    }
-
-    // 3. Ordenar
-    result.sort((a, b) => {
-      switch (sortOrder) {
-        case "id_asc": return a.id - b.id;
-        case "id_desc": return b.id - a.id;
-        case "name_asc": return a.name.localeCompare(b.name);
-        case "name_desc": return b.name.localeCompare(a.name);
-        default: return a.id - b.id;
-      }
-    });
-
-    return result;
-  }, [pokemonList, searchTerm, selectedType, sortOrder]);
-
-  // Si cambias filtros o buscador, probablemente quieras reiniciar la paginación para traer
-  // resultados consistentes con la nueva query. Aquí lo hacemos sin romper la estructura:
-  // - Limpiamos lista y offsets solicitados, volvemos a empezar.
-  // Puedes quitar este efecto si prefieres que los filtros se apliquen sobre lo ya cargado.
-  useEffect(() => {
-    // Si el usuario cambia el tipo o la búsqueda, reiniciamos la carga para obtener todos los resultados
-    // (sin esto, el filtro solo afecta a lo ya descargado)
-    // NOTA: si prefieres no reiniciar la descarga, comenta todo el contenido de este effect.
-    const resetAndReload = async () => {
-      // reiniciamos estado lazy
-      setPokemonList([]);
-      setOffset(0);
-      setHasMore(true);
-      requestedOffsetsRef.current.clear();
-      inflightOffsetsRef.current.clear();
-      // carga inicial tras reinicio
-      await loadPokemons();
-    };
-
-    // Sólo queremos reiniciar cuando cambia selectedType o searchTerm
-    // (y no en el primer montaje)
-    // Para evitar llamar al montar (donde ya llamamos loadPokemons), comprobamos requestedOffsetsRef
-    // Si aún no hay offsets solicitados (vacío) y pokemonList vacío, no hacemos reset aquí.
-    if (requestedOffsetsRef.current.size === 0 && pokemonList.length === 0) {
-      // ya se ejecutará el load inicial en el otro useEffect
-      return;
-    }
-
-    // Llamamos al reset (pero no en el primer render)
-    resetAndReload();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, searchTerm]); // reinicia cuando cambia filtro o search
 
   return (
     <div className="pokedex-container">
-      {/* Capçalera */}
+      {/* Header */}
       <header className="detail-header2">
-        
-        {/* 3. USA LA VARIABLE EN EL LINK */}
         <Link to={backDestination} className="back-btn">
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
         </Link>
-        
         <h1 className="title">Pokédex</h1>
       </header>
 
-      {/* Buscador */}
+      {/* Search */}
       <div className="search-wrapper">
         <input 
           type="text" 
@@ -270,7 +284,7 @@ function PostList() {
         />
       </div>
 
-      {/* Filtres Botons */}
+      {/* Filters */}
       <div className="filters">
         <button className="filter-btn" onClick={() => setShowTypeModal(true)}>
           {selectedType ? TYPE_CONFIG[selectedType].name : "Tipos"} <span>▼</span>
@@ -280,10 +294,10 @@ function PostList() {
         </button>
       </div>
 
-      {/* Grid de Pokémons */}
+      {/* Grid */}
       <div className="pokemon-grid">
-        {filteredAndSortedList.map((p) => (
-          <Link to={`/PostDetail/${p.id}`} state={selectionState} key={p.id} className="pokemon-card-link">
+        {displayedPokemon.map((p) => (
+          <Link to={`/PostDetail/${p.id}`} state={selectionState} key={`${p.id}-${p.name}`} className="pokemon-card-link">
             <div className="pokemon-card">
               <div className="card-image-container">
                 <img src={p.sprite} alt={p.name} className="pokemon-img" />
@@ -309,11 +323,14 @@ function PostList() {
         ))}
       </div>
 
-      {/* Loader debajo */}
-      {loading && <div className="loader">Cargando...</div>}
-      {!hasMore && <div className="loader">No hay más pokémon.</div>}
+      {/* Loaders */}
+      {(isLoadingRefs || isLoadingDetails) && <div className="loader">Cargando...</div>}
+      {!hasMore && displayedPokemon.length > 0 && <div className="loader">No hay más pokémon.</div>}
+      {!isLoadingRefs && !isLoadingDetails && displayedPokemon.length === 0 && (
+         <div className="loader">No se encontraron resultados.</div>
+      )}
 
-      {/* --- MODAL DE TIPUS --- */}
+      {/* --- TYPE MODAL --- */}
       {showTypeModal && (
         <div className="modal-overlay" onClick={() => setShowTypeModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -344,7 +361,7 @@ function PostList() {
         </div>
       )}
 
-      {/* --- MODAL D'ORDENAR --- */}
+      {/* --- SORT MODAL --- */}
       {showSortModal && (
         <div className="modal-overlay" onClick={() => setShowSortModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -366,7 +383,6 @@ function PostList() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
