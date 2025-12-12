@@ -30,16 +30,15 @@ body, html {
   color: var(--text-white);
 }
 
-/* --- CAPÇALERA CENTRADA --- */
 .detail-header2 {
   display: flex;
   justify-content: center; 
   align-items: center;
   position: relative;      
-  margin-bottom: 20px;
+  /* AUMENTADO: De 20px a 30px para dar más aire entre título y buscador */
+  margin-bottom: 30px; 
   padding-top: 10px;
 }
-
 
 .back-btn {
   position: absolute; 
@@ -50,6 +49,10 @@ body, html {
   padding: 0;
   display: flex;
   align-items: center;
+  
+  /* AJUSTE FLECHA: Antes estaba alineado al padding (10px). 
+     Lo ponemos en 8px para subirla 2 píxeles sin mover el título. */
+  top: 8px; 
 }
 
 .back-icon2 {
@@ -66,9 +69,9 @@ body, html {
   color: #333; /* Assegurem color fosc */
 }
 
-/* Buscador */
 .search-wrapper {
   margin-bottom: 15px;
+  margin-top: 0; 
 }
 
 .search-bar {
