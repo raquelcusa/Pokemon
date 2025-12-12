@@ -1,17 +1,17 @@
-/* --- VARIABLES (Copiadas para asegurar consistencia) --- */
+/* --- VARIABLES --- */
 :root {
   --bg-dark: #f5f5f5;
   --text-white: #333;
   --card-gray: #ffffff;
 }
 
-/* --- CONTENEDOR PRINCIPAL (Clon exacto de .pokedex-container) --- */
+/* --- CONTENEDOR PRINCIPAL (Clon de PostList) --- */
 .teams-container {
   font-family: "Inter", sans-serif;
   background-color: var(--bg-dark);
   min-height: 100vh;
   
-  /* Márgenes y Paddings idénticos a PostList.css */
+  /* Márgenes y Paddings idénticos a PostList */
   padding: 20px;
   margin-left: 3%;
   margin-right: 3%;
@@ -28,8 +28,7 @@
   justify-content: center; 
   align-items: center;
   position: relative;      
-  /* AUMENTADO: Igual que en PostList, 30px de separación */
-  margin-bottom: 30px; 
+  margin-bottom: 30px; /* Margen exacto para separar del contenido */
   padding-top: 10px;
 }
 
@@ -42,9 +41,7 @@
   padding: 0;
   display: flex;
   align-items: center;
-
-  /* AJUSTE FLECHA: Igual que en PostList, subimos a 8px */
-  top: 8px; 
+  top: 8px; /* Ajuste fino de píxeles hacia arriba */
 }
 
 .back-icon2 {
@@ -52,19 +49,17 @@
   height: auto;
 }
 
-/* Título Genérico (Equipos) */
 .title {
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
   color: #333; 
-  line-height: 1.2; /* Forzar altura de línea para evitar saltos */
+  line-height: 1.2;
 }
 
 /* --- BOTÓN AÑADIR EQUIPO --- */
 .add-team-wrapper-top {
-  /* Mantenemos margin-top en 0 para que la separación la controle el header */
-  margin-top: 0; 
+  margin-top: 0;
   margin-bottom: 25px;
 }
 
@@ -73,7 +68,7 @@
   background-color: #E6E6E6;
   border: none;
   border-radius: 20px;
-  height: 60px; /* Altura controlada */
+  height: 60px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -107,7 +102,7 @@
   font-size: 1rem;
 }
 
-/* --- LISTA DE EQUIPOS --- */
+/* --- LISTA --- */
 .teams-list {
   display: flex;
   flex-direction: column;
@@ -120,9 +115,45 @@
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  position: relative; /* Necesario para los botones absolutos */
 }
 
-/* --- CABECERA DE LA TARJETA --- */
+/* --- BOTÓN ELIMINAR EQUIPO (ESQUINA SUPERIOR DERECHA) --- */
+.delete-team-btn-corner {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background-color: #FF4D4D;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+
+}
+
+.delete-team-btn-corner span {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.delete-team-btn-corner:active {
+  transform: scale(0.9);
+}
+
+/* --- CABECERA TARJETA INT. --- */
 .team-header {
   display: flex;
   justify-content: space-between;
@@ -131,7 +162,6 @@
   height: 35px;
 }
 
-/* Estilo del nombre del equipo (Debe coincidir visualmente con h1 si se desea consistencia) */
 .team-name {
   font-weight: 700;
   color: #333;
@@ -168,7 +198,7 @@
   opacity: 1;
 }
 
-/* --- GRID DE POKÉMONS --- */
+/* --- GRID 3x2 --- */
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -186,13 +216,14 @@
   position: relative;
 }
 
+/* Botón eliminar Pokémon (mini) */
 .delete-badge {
   position: absolute;
   top: -6px;
   right: -6px;
   background-color: #FF4D4D;
   color: white;
-  border: 2px solid white;
+  border: none;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -204,6 +235,11 @@
   cursor: pointer;
   z-index: 10;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+
+.delete-badge:active {
+  transform: scale(0.9);
 }
 
 .slot-filled {
