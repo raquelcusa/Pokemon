@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom"; 
-import Greninja from '/src/images/Home_fondo/Greninja.png'; 
+import Greninja from '/src/images/Home_fondo/fons_pokemon.png'; 
 import './Home.css';
 
 function Home() {
