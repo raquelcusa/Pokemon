@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+// Importamos TODO de router en una sola línea para evitar errores
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useFavorites } from '../context/FavoritesContext';
+import { useTeams } from '../context/TeamsContext'; // Importar Contexto de Equipos
 import "./PostDetail.css";
-import { useParams, Link, useNavigate, useLocation } from "react-router-dom"; // Añadir useLocation
-import { useTeams } from '../context/TeamsContext'; // Importar Teams Context
 
+// ICONOS DE NAVEGACIÓN Y ACCIÓN
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
 import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
 import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
-import ICONO_GUARDAR from '/src/images/icono_guardar/guardar.svg'; 
+import ICONO_GUARDAR from '/src/images/icono_guardar/guardar.svg'; // Asegúrate de tener este icono
+
 /* -- IMPORTACIÓ D'ICONES DE TIPUS -- */
 import Tipo_acero_icono_EP from '/src/images/icono_tipos/Tipo_acero_icono_EP.svg';
 import Tipo_agua_icono_EP from '/src/images/icono_tipos/Tipo_agua_icono_EP.svg';
@@ -84,21 +87,23 @@ const STAT_NAMES = {
 function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); 
-  const { updateSlot } = useTeams(); 
-  const [pokemon, setPokemon] = useState(null);
-  const [species, setSpecies] = useState(null);
-  const [evolutions, setEvolutions] = useState([]); 
+  const location = useLocation(); // Hook para leer el estado
+  const { updateSlot } = useTeams(); // Función para guardar en equipo
+  const { toggleFavorite, isFavorite } = useFavorites();
 
+  // LEEMOS LOS DATOS QUE VIENEN DE LA NAVEGACIÓN
   const selectionMode = location.state?.selectionMode;
+  const viewOnlyMode = location.state?.viewOnlyMode;
   const teamId = location.state?.teamId;
   const slotIndex = location.state?.slotIndex;
 
-  // Estado nuevo para guardar debilidades y fortalezas
+  const [pokemon, setPokemon] = useState(null);
+  const [species, setSpecies] = useState(null);
+  const [evolutions, setEvolutions] = useState([]); 
   const [typeRelations, setTypeRelations] = useState({ weaknesses: [], strengths: [] });
   const [loading, setLoading] = useState(true);
-  const { toggleFavorite, isFavorite } = useFavorites();
 
+  // FETCH DE DATOS (Tu código original intacto)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -113,36 +118,29 @@ function PostDetail() {
         const speciesData = await speciesRes.json();
         setSpecies(speciesData);
 
-        // 3. Dades de Relacions de Tipus (Debilidades y Fortalezas)
-        // Obtenemos la info detallada de cada tipo que tiene el pokemon
+        // 3. Dades de Relacions de Tipus
         const typeUrls = pokemonData.types.map(t => t.type.url);
         const typeResponses = await Promise.all(typeUrls.map(url => fetch(url).then(res => res.json())));
 
-        // --- CÁLCULO DE DEBILIDADES (Defensivo) ---
-        // Inicializamos todos los tipos con multiplicador 1
+        // --- CÁLCULO DE DEBILIDADES ---
         const damageMap = {};
         const allTypes = Object.keys(TYPE_ICONS);
         allTypes.forEach(t => damageMap[t] = 1);
 
         typeResponses.forEach(typeData => {
-            // double_damage_from -> El pokemon recibe x2
             typeData.damage_relations.double_damage_from.forEach(t => {
                 if(damageMap[t.name]) damageMap[t.name] *= 2;
             });
-            // half_damage_from -> El pokemon recibe x0.5
             typeData.damage_relations.half_damage_from.forEach(t => {
                 if(damageMap[t.name]) damageMap[t.name] *= 0.5;
             });
-            // no_damage_from -> El pokemon recibe x0 (inmune)
             typeData.damage_relations.no_damage_from.forEach(t => {
                 if(damageMap[t.name]) damageMap[t.name] *= 0;
             });
         });
-        // Filtramos los que tengan multiplicador > 1 (son debilidades reales)
         const weakTo = Object.keys(damageMap).filter(t => damageMap[t] > 1);
 
-        // --- CÁLCULO DE FORTALEZAS (Ofensivo) ---
-        // Contra qué tipos pega fuerte este pokemon (unimos los arrays double_damage_to)
+        // --- CÁLCULO DE FORTALEZAS ---
         const strongSet = new Set();
         typeResponses.forEach(typeData => {
             typeData.damage_relations.double_damage_to.forEach(t => strongSet.add(t.name));
@@ -172,19 +170,6 @@ function PostDetail() {
     fetchData();
   }, [id]);
 
-  const handleSaveToTeam = () => {
-    // Creamos un objeto simple del pokemon para guardar en el equipo (no hace falta guardar todo el json gigante)
-    const pokemonForTeam = {
-       id: pokemon.id,
-       name: pokemon.name,
-       sprite: pokemon.sprites.versions["generation-viii"].icons.front_default || pokemon.sprites.front_default,
-       types: pokemon.types // opcional, si lo quieres usar para filtrar luego
-    };
-
-    updateSlot(teamId, slotIndex, pokemonForTeam);
-    navigate('/teams'); // Redirigir a equipos
-  };
-
   const getEvoChain = (chain) => {
     let evos = [];
     evos.push(chain.species.name); 
@@ -195,9 +180,22 @@ function PostDetail() {
     }
     return evos;
   };
+
+  // FUNCIÓN PARA GUARDAR EN EL EQUIPO
+  const handleSaveToTeam = () => {
+    const pokemonForTeam = {
+       id: pokemon.id,
+       name: pokemon.name,
+       sprite: pokemon.sprites.versions["generation-viii"].icons.front_default || pokemon.sprites.front_default,
+       types: pokemon.types 
+    };
+    updateSlot(teamId, slotIndex, pokemonForTeam);
+    navigate('/teams'); // Redirigir a equipos
+  };
  
  if (loading || !pokemon || !species) return <div className="loading">Cargando...</div>;
 
+  // Variables para renderizado
   const descriptionEntry = species.flavor_text_entries.find((e) => e.language.name === "es");
   const description = descriptionEntry 
     ? descriptionEntry.flavor_text.replace(/[\n\f]/g, " ") 
@@ -221,26 +219,30 @@ function PostDetail() {
   return (
     <div className="detail-container" style={{ backgroundColor: backgroundColor }}>
       
-      {/* HEADER */}
+      {/* HEADER CON LÓGICA DE 3 ESTADOS */}
       <header className="detail-header">
+        {/* Botón Atrás */}
         <button onClick={() => navigate(-1)} className="header-btn">
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon" />
         </button>
 
-        {/* LOGICA CONDICIONAL DEL BOTÓN DERECHO */}
+        {/* Botón Derecho Variable */}
         {selectionMode ? (
-           // SI VENIMOS DE TEAMS: Mostramos botón Guardar
-           <button onClick={handleSaveToTeam} className="header-btn">
-              <img src={ICONO_GUARDAR} alt="Guardar" className="fav-icon" /> 
-           </button>
+            // CASO 1: SELECCIONAR -> Botón Guardar
+            <button onClick={handleSaveToTeam} className="header-btn">
+                <img src={ICONO_GUARDAR} alt="Guardar" className="fav-icon" />
+            </button>
+        ) : viewOnlyMode ? (
+            // CASO 2: SOLO VER -> Nada (espacio vacío para alinear)
+            <div style={{width: 48}}></div>
         ) : (
-           // SI ES NORMAL: Mostramos Corazón (Tu código original)
-           <button onClick={() => toggleFavorite(pokemon)} className="header-btn">
-             {isFavorite(pokemon.id) ?  
-                <img src={HEARTFULL} alt="Favorito" className="fav-icon" /> : 
-                <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />
-             }
-           </button>
+            // CASO 3: NORMAL -> Botón Favorito
+            <button onClick={() => toggleFavorite(pokemon)} className="header-btn">
+                {isFavorite(pokemon.id) ?  
+                    <img src={HEARTFULL} alt="Favorito" className="fav-icon" /> : 
+                    <img src={HEARTEMPTY} alt="Favorito" className="fav-icon" />
+                }
+            </button>
         )}
       </header>
 
@@ -278,7 +280,7 @@ function PostDetail() {
         <p className="pokemon-description">{description}</p>
 
         <div className="stats-grid">
-          {/* CASILLA 1: DEBILIDADES (Sustituye a Peso) */}
+          {/* DEBILIDADES */}
           <div className="stat-box">
             <span className="stat-label">DEBILIDADES</span>
             <div className="stat-value-pill" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px', padding: '5px', maxWidth: '94%' }}>
@@ -300,7 +302,7 @@ function PostDetail() {
             </div>
           </div>
 
-          {/* CASILLA 2: FORTALEZAS (Sustituye a Altura) */}
+          {/* FORTALEZAS */}
           <div className="stat-box">
             <span className="stat-label">EFICAZ CONTRA</span>
             <div className="stat-value-pill" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px', padding: '5px' , maxWidth: '94%' }}>
@@ -347,10 +349,10 @@ function PostDetail() {
                     </div>
                     <div className="gender-info">
                         <div className="gender-item male-text">
-                            <span className="gender-symbol">♂</span> <span>{maleRate}%</span>
+                            <span className="gender-symbol">♂</span> <span>{maleRate.toFixed(1)}%</span>
                         </div>
                         <div className="gender-item female-text">
-                            <span>{femaleRate}%</span> <span className="gender-symbol">♀</span> 
+                            <span>{femaleRate.toFixed(1)}%</span> <span className="gender-symbol">♀</span> 
                         </div>
                     </div>
                 </>
@@ -385,7 +387,7 @@ function PostDetail() {
         </div>
       </div>
 
-      {/* --- TARGETA 3: EVOLUCIÓ (AMB ICONES) --- */}
+      {/* --- TARGETA 3: EVOLUCIÓ --- */}
       {evolutions.length > 0 && (
           <div className="detail-card-panel evolution-panel">
             <h3 className="skills-title">Evolución</h3>
@@ -405,7 +407,6 @@ function PostDetail() {
                             <span className="evo-id">Nº {String(evo.id).padStart(4, '0')}</span>
                             <span className="evo-name">{evo.name}</span>
                             
-                            {/* AQUÍ USAMOS LOS ICONOS SVG */}
                             <div className="evo-types-row">
                                 {evo.types.map((t) => {
                                     const iconSrc = TYPE_ICONS[t.type.name];

@@ -1,146 +1,211 @@
+/* --- CONTENEDOR PRINCIPAL --- */
 .teams-container {
   padding: 20px;
   min-height: 100vh;
-  padding-bottom: 120px; /* Espacio para el footer */
+  /* Espacio extra abajo para que el footer no tape el último equipo */
+  padding-bottom: 120px; 
+  font-family: "Inter", sans-serif;
+  background-color: #F2F2F2; /* O el color de fondo que uses en tu app */
 }
 
-.teams-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.team-card {
-  background-color: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.team-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.team-name {
-  font-weight: 700;
-  color: #333;
-  font-size: 1.1rem;
-}
-
-.edit-icon {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  opacity: 0.6;
-}
-
-/* Grid de 3 columnas x 2 filas */
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.slot-item {
-  aspect-ratio: 1/1; /* Cuadrado perfecto */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.slot-empty-btn {
-  width: 100%;
-  height: 100%;
-  background-color: #F7F7F7;
-  border: none;
-  border-radius: 12px;
-  font-size: 2rem;
-  color: #ccc;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background 0.2s;
-}
-
-.slot-empty-btn:hover {
-  background-color: #ececec;
-}
-
-.slot-filled {
-  width: 100%;
-  height: 100%;
-  background-color: #f0f0f0; /* Fondo gris suave detrás del sprite */
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-
-.slot-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated; /* Para que los sprites pequeños se vean nítidos */
-}
-
-/* Botón grande de abajo */
-.add-team-wrapper {
-  margin-top: 30px;
+/* --- BOTÓN AÑADIR EQUIPO (ARRIBA) --- */
+.add-team-wrapper-top {
+  margin-top: 10px;
+  margin-bottom: 25px;
 }
 
 .add-team-btn {
   width: 100%;
-  background-color: #D9D9D9; /* El gris del diseño */
+  background-color: #E6E6E6; /* Gris suave */
   border: none;
   border-radius: 20px;
-  height: 100px; /* Altura grande según diseño */
+  height: 70px; /* Altura contenida para no ocupar mucho */
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Horizontal */
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  gap: 10px;
+  gap: 15px;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.add-team-btn:active {
+  transform: scale(0.98);
+}
+
+.add-team-btn:hover {
+  background-color: #dcdcdc;
 }
 
 .plus-circle {
-  background-color: rgba(0,0,0,0.1);
-  width: 40px;
-  height: 40px;
+  background-color: rgba(0,0,0,0.05);
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
   color: #666;
+  padding-bottom: 4px; /* Ajuste visual para centrar el + verticalmente */
 }
 
+.add-team-btn span {
+  color: #555;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* --- LISTA DE EQUIPOS --- */
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- TARJETA DE EQUIPO --- */
 .team-card {
-  position: relative; /* necesario para posicionar el botón dentro del card */
+  background-color: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
 }
 
-.remove-team-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: red;
-  color: white;
+/* --- CABECERA DE LA TARJETA (Nombre + Lápiz) --- */
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  height: 35px; /* Altura fija para evitar saltos al cambiar a input */
+}
+
+.team-name {
+  font-weight: 700;
+  color: #333;
+  font-size: 1.2rem;
+  /* Evitar que el texto muy largo rompa el diseño */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85%;
+}
+
+/* INPUT EDITABLE */
+.team-name-input {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #333;
   border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  border-bottom: 2px solid #333; /* Subrayado negro estilo diseño */
+  outline: none;
+  width: 85%;
+  padding: 0 0 4px 0;
+  background: transparent;
+}
+
+.edit-icon {
+  width: 22px;
+  height: 22px;
   cursor: pointer;
-  font-weight: bold;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.edit-icon:hover, .edit-icon.active {
+  opacity: 1; /* Más visible cuando está activo o hover */
+}
+
+/* --- GRID DE POKÉMONS (3 Columnas) --- */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* Contenedor de cada hueco */
+.slot-item {
+  aspect-ratio: 1/1; /* Cuadrado perfecto */
+  position: relative;
+}
+
+.slot-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* --- BOTÓN DE ELIMINAR (X ROJA) --- */
+.delete-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #FF4D4D; /* Rojo vivo */
+  color: white;
+  border: 2px solid white; /* Borde blanco para separarlo de la imagen */
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
   z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
 }
 
-.remove-team-btn:hover {
-  background: darkred;
+.delete-badge:active {
+  transform: scale(0.9);
+}
+
+/* --- ESTILO SLOT LLENO (IMAGEN) --- */
+.slot-filled {
+  width: 100%;
+  height: 100%;
+  background-color: #F7F7F7; /* Fondo gris claro detrás del sprite */
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.2s;
+}
+
+.slot-filled:hover {
+  background-color: #EEEEEE;
+}
+
+.slot-img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  image-rendering: pixelated; /* Para que los sprites se vean nítidos */
+}
+
+/* --- ESTILO SLOT VACÍO (+) --- */
+.slot-empty-btn {
+  width: 100%;
+  height: 100%;
+  background-color: #FCFCFC;
+  border: 1px solid #F0F0F0; /* Borde muy sutil */
+  border-radius: 14px;
+  font-size: 2rem;
+  color: #DDDDDD;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.slot-empty-btn:hover {
+  background-color: #F5F5F5;
+  color: #BBB;
 }
