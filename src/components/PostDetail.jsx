@@ -7,7 +7,7 @@ import "./PostDetail.css";
 
 // ICONOS DE NAVEGACIÓN Y ACCIÓN
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg';
-import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
+import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.svg';
 import HEARTEMPTY from '/src/images/iconos_favorito_detalles/HEARTEMPTY.svg';
 import HEARTFULL from '/src/images/iconos_favorito_detalles/HEARTFULL.svg';
 import ICONO_GUARDAR from '/src/images/icono_guardar/guardar.svg'; // Asegúrate de tener este icono
