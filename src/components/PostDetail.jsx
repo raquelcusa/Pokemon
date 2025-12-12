@@ -304,7 +304,7 @@ function PostDetail() {
 
           {/* FORTALEZAS */}
           <div className="stat-box">
-            <span className="stat-label">EFICAZ CONTRA</span>
+            <span className="stat-label">SUPEREFICAZ</span>
             <div className="stat-value-pill" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px', padding: '5px' , maxWidth: '94%' }}>
                 {typeRelations.strengths.length > 0 ? (
                     typeRelations.strengths.map(typeName => (
@@ -361,14 +361,15 @@ function PostDetail() {
       </div>
 
       {/* --- TARGETA 2: SKILLS --- */}
-      <div className="detail-card-panel skills-panel">
-        <h3 className="skills-title">Skills</h3>
+    <div className="detail-card-panel skills-panel">
+        <h3 className="skills-title">Estadísticas</h3>
         
         <div className="skills-list">
             {pokemon.stats.map((stat) => (
                 <div key={stat.stat.name} className="skill-row">
                     <span className="skill-name">{STAT_NAMES[stat.stat.name] || stat.stat.name}</span>
-                    <span className="skill-value">{String(stat.base_stat).padStart(3, '0')}</span>
+                    {/* CAMBIO APLICADO AQUÍ */}
+                    <span className="skill-value">{stat.base_stat}</span>
                     
                     <div className="skill-bar-bg">
                         <div 
@@ -385,7 +386,7 @@ function PostDetail() {
                 <div className="skill-bar-bg transparent-bar"></div> 
             </div>
         </div>
-      </div>
+    </div>
 
       {/* --- TARGETA 3: EVOLUCIÓ --- */}
       {evolutions.length > 0 && (
@@ -394,17 +395,19 @@ function PostDetail() {
             
             <div className="evolution-list">
                 {evolutions.map((evo) => (
-                    <Link to={`/PostDetail/${evo.id}`} key={evo.id} className="evo-item-link">
-                        <div className="evo-item">
-                            <div className="evo-img-circle">
-                                <img 
-                                    src={evo.sprites.other["official-artwork"].front_default || evo.sprites.front_default} 
-                                    alt={evo.name} 
-                                    className="evo-img"
-                                />
-                            </div>
-                            
-                            <span className="evo-id">Nº {String(evo.id).padStart(4, '0')}</span>
+              <Link to={`/PostDetail/${evo.id}`} key={evo.id} className="evo-item-link">
+                <div className="evo-item">
+                  
+                  {/* CAMBIO AQUÍ: Añadimos lógica condicional a la clase */}
+                  <div className={`evo-img-circle ${evo.id === pokemon.id ? 'selected' : ''}`}>
+                    <img 
+                      src={evo.sprites.other["official-artwork"].front_default || evo.sprites.front_default} 
+                      alt={evo.name} 
+                      className="evo-img"
+                    />
+                  </div>
+                  
+                  <span className="evo-id">Nº {String(evo.id).padStart(4, '0')}</span>
                             <span className="evo-name">{evo.name}</span>
                             
                             <div className="evo-types-row">
