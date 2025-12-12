@@ -5,7 +5,7 @@ import '../components/FavoritesPage.css';
 
 // Importación de iconos (para el header o detalles si fuera necesario, aunque usaremos pills para tipos)
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
-import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.png';
+import ICONO_POKEDEX from '../images/icono_pokedex/POKEDEX.svg';
 
 // Configuración de Tipos (Colores y Nombres en Español)
 const TYPE_CONFIG = {
