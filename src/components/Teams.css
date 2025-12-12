@@ -7,7 +7,20 @@
   font-family: "Inter", sans-serif;
   background-color: #F2F2F2; /* O el color de fondo que uses en tu app */
 }
-
+.detail-header2 {
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  position: relative;      
+  margin-bottom: 20px;
+  padding-top: 10px;
+}
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333; /* Assegurem color fosc */
+}
 /* --- BOTÓN AÑADIR EQUIPO (ARRIBA) --- */
 .add-team-wrapper-top {
   margin-top: 10px;

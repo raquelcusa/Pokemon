@@ -66,7 +66,7 @@ function Teams() {
           <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" />
         </Link>
         <h1 className="title">Equipos</h1>
-        <div style={{width: 48}}></div> 
+        
       </header>
 
       <div className="add-team-wrapper-top">
