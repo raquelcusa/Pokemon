@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom"; 
 import Greninja from '/src/images/Home_fondo/fons_pokemon.png'; 
+import { useTeams } from "../context/TeamsContext";
+
 import './Home.css';
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [pokemonList, setPokemonList] = useState([]);
   const [dailyPokemon, setDailyPokemon] = useState(null);
+  const { teams } = useTeams();
+
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -89,13 +93,13 @@ function Home() {
       </h2>
 
       <div className="search-input-wrapper">
-          <input 
-            type="text" 
-            className="search-bar" 
-            placeholder="Buscar Pokémon..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <input 
+          type="text" 
+          className="search-bar" 
+          placeholder="Buscar Pokémon..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* LISTA DESPLEGABLE */}
@@ -112,7 +116,9 @@ function Home() {
                 />
                 <div className="search-item-text">
                   <span className="search-name">{p.name}</span>
-                  <span className="search-id">#{String(p.id).padStart(4, '0')}</span>
+                  <span className="search-id">
+                    #{String(p.id).padStart(4, '0')}
+                  </span>
                 </div>
               </Link>
             </li>
@@ -121,9 +127,9 @@ function Home() {
       )}
 
       {searchTerm && filteredList.length === 0 && (
-          <div className="search-dropdown empty">
-              <p>No se encontraron resultados.</p>
-          </div>
+        <div className="search-dropdown empty">
+          <p>No se encontraron resultados.</p>
+        </div>
       )}
     </div>
 
@@ -136,7 +142,9 @@ function Home() {
           <div className="daily-card">
             <div className="daily-info">
               <h3 className="daily-name">{dailyPokemon.name}</h3>
-              <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
+              <span className="daily-id">
+                Nº {String(dailyPokemon.id).padStart(4, "0")}
+              </span>
 
               <div className="daily-types">
                 {dailyPokemon.types.map(type => (
@@ -157,8 +165,60 @@ function Home() {
         </Link>
       </div>
     )}
+
+    {/* EQUIPOS */}
+{teams.length > 0 && (
+  <div className="daily-container">
+    <h2 className="daily-title">Mis Equipos</h2>
+
+    {/* CONTENEDOR PARA SEPARAR EQUIPOS */}
+    <div className="teams-preview-list">
+      {teams.map((team) => (
+        <Link
+          key={team.id}
+          to="/Teams"
+          className="daily-card-link"
+        >
+          <div className="daily-card">
+            <div className="daily-info">
+              <h3 className="daily-name">{team.name}</h3>
+              <span className="daily-id">
+                {team.slots.filter(Boolean).length} / 6 Pokémon
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 6
+              }}
+            >
+              {team.slots.map((pokemon, index) => (
+                <div key={index} style={{ width: 32, height: 32 }}>
+                  {pokemon && (
+                    <img
+                      src={
+                        pokemon.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+                        pokemon.sprite
+                      }
+                      alt={pokemon.name}
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
+
   </div>
 );
+
 
 }
 

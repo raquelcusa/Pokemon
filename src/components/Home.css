@@ -256,3 +256,16 @@ body {
   transform: scale(1.03);
 }
 
+
+/* ================================
+     LISTA DE EQUIPOS (HOME)
+================================ */
+.teams-preview-list {
+  width: 100%;
+  max-width: 400px;
+  margin: 25px auto 40px auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* ← AQUÍ se separan los equipos */
+}
