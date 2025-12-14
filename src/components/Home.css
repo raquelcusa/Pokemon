@@ -19,15 +19,13 @@ body {
   position: relative;
   background-color: #F2F2F2;
   margin: 0 auto;
-  overflow-y: auto; /* Permite scroll vertical si el contenido excede la pantalla */
+  padding-bottom: 40px; /* Espacio extra al final */
+  overflow-y: auto;
 }
 
-
- 
 /* --- HERO IMAGE (Fondo Greninja) --- */
 .home-hero {
   width: 100%;
-  /* Altura inicial para móvil */
   height: 35vh; 
   min-height: 300px;
   background-position: center top;
@@ -46,9 +44,9 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   
   /* RESPONSIVE: Configuración Mobile First */
-  width: 90%;          /* Ocupa el 90% de la pantalla en móviles */
-  max-width: 400px;    /* Pero nunca pasa de 400px de ancho en móvil */
-  margin: -60px auto 0 auto; /* Margen negativo superior para subir y AUTO para centrar */
+  width: 90%;
+  max-width: 400px;
+  margin: -60px auto 0 auto;
 }
 
 .home-title {
@@ -57,7 +55,7 @@ body {
   font-size: 1.8rem;
   font-weight: 800;
   line-height: 1.2;
-  text-align: center; /* Centramos el texto para que se vea bien en desktop */
+  text-align: center;
 }
 
 /* --- INPUT WRAPPER --- */
@@ -72,7 +70,7 @@ body {
 }
 
 .search-input-wrapper:focus-within {
-  border-color: #fff; /* Efecto al hacer click */
+  border-color: #fff;
 }
 
 .search-bar {
@@ -151,7 +149,7 @@ body {
 }
 
 /* ================================
-     POKÉMON DEL DÍA
+     CONTENEDORES GLOBALES (Día / Equipos / Favoritos)
 ================================ */
 .daily-container {
   width: 90%;
@@ -167,6 +165,7 @@ body {
   text-align: left;
 }
 
+/* --- TARJETA GENÉRICA (Usada en Día y Equipos) --- */
 .daily-card {
   background: white;
   border-radius: 20px;
@@ -175,6 +174,18 @@ body {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.daily-card:hover {
+  transform: scale(1.03);
+}
+
+.daily-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .daily-info {
@@ -198,7 +209,13 @@ body {
   margin: 0;
 }
 
-/* TYPES */
+/* Imagen del Pokémon (Tarjeta grande) */
+.daily-img {
+  width: 110px;
+  height: auto;
+}
+
+/* TYPES (Badges de colores) */
 .daily-types {
   display: flex;
   gap: 8px;
@@ -215,7 +232,7 @@ body {
   text-transform: capitalize;
 }
 
-/* COLORES DE TIPOS — estilo Pokémon GO */
+/* COLORES DE TIPOS */
 .type-grass { background-color: #48d0b0; }
 .type-poison { background-color: #b567ce; }
 .type-fire { background-color: #ff9448; }
@@ -235,37 +252,135 @@ body {
 .type-ice { background-color: #74d0e3; }
 .type-fighting { background-color: #c44d4d; }
 
-/* Imagen del Pokémon */
-.daily-img {
-  width: 110px;
-  height: auto;
-}
 
-.daily-card-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.daily-card {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.daily-card:hover {
-  transform: scale(1.03);
+/* ================================
+     LISTA DE EQUIPOS (TEAMS)
+================================ */
+.teams-preview-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
 
 /* ================================
-     LISTA DE EQUIPOS (HOME)
+     NUEVO: SECCIÓN MIS FAVORITOS (GRID)
 ================================ */
-.teams-preview-list {
-  width: 100%;
-  max-width: 400px;
-  margin: 25px auto 40px auto;
 
-  display: flex;
-  flex-direction: column;
-  gap: 24px; /* ← AQUÍ se separan los equipos */
+/* Cabecera (Título + Link Ver todo) */
+.favorites-header-home {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 15px; /* Separación con las tarjetas */
+}
+
+.see-all-link {
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.see-all-link:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+/* Grid de 3 columnas */
+.fav-home-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+/* Tarjeta individual de favorito */
+.fav-home-card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fav-home-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* Wrapper de la imagen para centrarla bien */
+.fav-home-img-wrapper {
+    width: 100%;
+    height: 70px; /* Altura fija para alineación */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.fav-home-img-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Textos de la tarjeta */
+.fav-home-name {
+    color: #333;
+    font-weight: 700;
+    font-size: 0.85rem; /* Un poco más pequeño para que quepan nombres largos */
+    text-transform: capitalize;
+    margin-bottom: 2px;
+    text-align: center;
+    
+    /* Cortar texto si es muy largo */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.fav-home-id {
+    color: #888;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* --- ESTADO VACÍO (Sin favoritos) --- */
+.empty-fav-home {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-fav-home p {
+    color: #666;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.empty-link-home {
+    color: #1E1E1E;
+    font-weight: 800;
+    text-decoration: none;
+    border-bottom: 2px solid #1E1E1E;
+    padding-bottom: 2px;
+    transition: opacity 0.2s;
+}
+
+.empty-link-home:hover {
+    opacity: 0.7;
 }

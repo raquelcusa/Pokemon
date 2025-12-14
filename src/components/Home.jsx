@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom"; 
 import Greninja from '/src/images/Home_fondo/fons_pokemon.png'; 
 import { useTeams } from "../context/TeamsContext";
+import { useFavorites } from "../context/FavoritesContext";
 
 import './Home.css';
 
@@ -10,6 +11,7 @@ function Home() {
   const [pokemonList, setPokemonList] = useState([]);
   const [dailyPokemon, setDailyPokemon] = useState(null);
   const { teams } = useTeams();
+  const { favorites } = useFavorites();
 
 
   useEffect(() => {
@@ -165,6 +167,42 @@ function Home() {
         </Link>
       </div>
     )}
+
+    <div className="daily-container">
+      <div className="favorites-header-home">
+         <h2 className="daily-title" style={{marginBottom:0}}>Mis Favoritos</h2>
+         {favorites.length > 0 && (
+             <Link to="/favorits" className="see-all-link">Ver todo</Link>
+         )}
+      </div>
+
+      {favorites.length === 0 ? (
+        // ESTADO VACÍO (Igual que FavoritesPage pero adaptado a Home)
+        <div className="empty-fav-home">
+           <p>No tienes favoritos aún.</p>
+           <Link to="/PostList" className="empty-link-home">¡Busca en la Pokédex!</Link>
+        </div>
+      ) : (
+        // GRID DE FAVORITOS 
+        <div className="fav-home-grid">
+           {favorites.slice(0, 3).map((poke) => {
+              const imgUrl = poke.sprites?.other?.["official-artwork"]?.front_default 
+                          || poke.sprites?.front_default 
+                          || poke.sprite;
+              
+              return (
+                <Link to={`/PostDetail/${poke.id}`} key={poke.id} className="fav-home-card">
+                   <div className="fav-home-img-wrapper">
+                      <img src={imgUrl} alt={poke.name} />
+                   </div>
+                   <span className="fav-home-name">{poke.name}</span>
+                   <span className="fav-home-id">#{String(poke.id).padStart(4, '0')}</span>
+                </Link>
+              );
+           })}
+        </div>
+      )}
+    </div>
 
     {/* EQUIPOS */}
 {teams.length > 0 && (
