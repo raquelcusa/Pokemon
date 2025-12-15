@@ -204,14 +204,25 @@ function Home() {
       )}
     </div>
 
-    {/* EQUIPOS */}
+   {/* EQUIPOS */}
 {teams.length > 0 && (
   <div className="daily-container">
-    <h2 className="daily-title">Mis Equipos</h2>
+
+    <div className="favorites-header-home">
+      <h2 className="daily-title" style={{ marginBottom: 0 }}>
+        Mis Equipos
+      </h2>
+
+      {teams.length > 3 && (
+        <Link to="/Teams" className="see-all-link">
+          Ver todos
+        </Link>
+      )}
+    </div>
 
     {/* CONTENEDOR PARA SEPARAR EQUIPOS */}
     <div className="teams-preview-list">
-      {teams.map((team) => (
+      {teams.slice(0, 3).map((team) => (
         <Link
           key={team.id}
           to="/Teams"
@@ -251,8 +262,10 @@ function Home() {
         </Link>
       ))}
     </div>
+
   </div>
 )}
+
 
   </div>
 );
