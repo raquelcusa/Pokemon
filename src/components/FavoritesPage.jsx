@@ -96,7 +96,7 @@ function FavoritesPage() {
       <header className="detail-header2">
         <Link to="/" className="back-btn">
              {/* Usamos el SVG importado o una flecha simple si falla */}
-             <img src={ICONO_ATRAS} alt="Volver" className="back-icon2" style={{width: '24px'}} />
+             <img src={ICONO_ATRAS} alt="Volver" className="back-icon2"  />
         </Link>
         <h1 className="title">Favoritos</h1>
       </header>
