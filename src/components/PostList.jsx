@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./PostList.css";
 import { Link, useLocation } from "react-router-dom";
 import ICONO_ATRAS from '/src/images/icono_volver/ICONO_ATRAS.svg'; 
@@ -81,16 +81,17 @@ function PostList() {
   const [showSortModal, setShowSortModal] = useState(false);
 
   // --- DATA STATE ---
-  // Ahora guardamos la lista completa con detalles directamente
   const [allPokemon, setAllPokemon] = useState([]); 
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [displayedPokemon, setDisplayedPokemon] = useState([]); 
 
   // --- LAZY LOADING STATE ---
-  const [offset, setOffset] = useState(0);
-  const LIMIT = 20; // Con GraphQL podemos subir el límite sin miedo a fallos
+  const [offset, setOffset] = useState(0); // number of items currently displayed
+  const LIMIT = 20; // items per batch
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
+  const loaderRef = useRef(null); // sentinel for IntersectionObserver
 
   // ==========================================
   // STEP 1: GRAPHQL FETCH (Carga masiva eficiente)
@@ -103,7 +104,6 @@ function PostList() {
       setHasMore(true);
       setOffset(0);
 
-      // Consulta optimizada: Pide ID, Nombre y Tipos de los primeros 1025 Pokémon de una sola vez
       const query = `
         query {
           pokemon_v2_pokemon(where: {id: {_lte: 1025}}) {
@@ -126,18 +126,15 @@ function PostList() {
         });
 
         const json = await response.json();
-        
-        // Transformamos los datos al formato que usa tu app
         const formattedData = json.data.pokemon_v2_pokemon.map(p => ({
           id: p.id,
-          name: p.name.charAt(0).toUpperCase() + p.name.slice(1), // Capitalizar nombre
-          // Construimos la URL del sprite manualmente (es estándar y no falla)
+          name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
           sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/${p.id}.png`,
           types: p.pokemon_v2_pokemontypes.map(t => t.pokemon_v2_type.name)
         }));
 
         setAllPokemon(formattedData);
-        setFilteredPokemon(formattedData); // Inicialmente es igual
+        setFilteredPokemon(formattedData);
 
       } catch (error) {
         console.error("Error fetching GraphQL:", error);
@@ -147,7 +144,7 @@ function PostList() {
     };
 
     fetchAllPokemonGraphQL();
-  }, []); // Solo se ejecuta una vez al montar el componente
+  }, []);
 
   // ==========================================
   // STEP 2: FILTER & SORT LOGIC
@@ -157,12 +154,10 @@ function PostList() {
 
     let result = [...allPokemon];
 
-    // 1. Filter by Type
     if (selectedType) {
       result = result.filter(p => p.types.includes(selectedType));
     }
 
-    // 2. Filter by Search Term
     if (searchTerm) {
       result = result.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -170,7 +165,6 @@ function PostList() {
       );
     }
 
-    // 3. Sort
     result.sort((a, b) => {
       switch (sortOrder) {
         case "id_asc": return a.id - b.id;
@@ -182,50 +176,56 @@ function PostList() {
     });
 
     setFilteredPokemon(result);
-    setOffset(0); // Reiniciar scroll al filtrar
-    setDisplayedPokemon(result.slice(0, LIMIT));
-    setHasMore(result.length > LIMIT);
+
+    // Reset displayed list based on new filters/sort
+    const initialCount = Math.min(LIMIT, result.length);
+    setDisplayedPokemon(result.slice(0, initialCount));
+    setOffset(initialCount);
+    setHasMore(result.length > initialCount);
 
   }, [selectedType, searchTerm, sortOrder, allPokemon]);
 
-
   // ==========================================
-  // STEP 3: SCROLL LOADER (Local Data)
+  // STEP 3: BATCH LOADER (IntersectionObserver)
   // ==========================================
-  // Como ya tenemos TODOS los datos en memoria, "cargar más" es instantáneo
-  const loadNextBatch = useCallback(() => {
+  const loadNextBatch = useCallback(async () => {
+    if (isLoading) return; // prevent re-entry
     if (offset >= filteredPokemon.length) {
       setHasMore(false);
       return;
     }
 
-    const nextOffset = offset + LIMIT;
-    const nextBatch = filteredPokemon.slice(0, nextOffset + LIMIT);
-    
-    setDisplayedPokemon(nextBatch);
+    setIsLoading(true);
+
+    const nextOffset = Math.min(offset + LIMIT, filteredPokemon.length);
+    const newItems = filteredPokemon.slice(offset, nextOffset); // append only the new items
+
+    // Small artificial delay removed — this is instant for local data
+    setDisplayedPokemon(prev => [...prev, ...newItems]);
     setOffset(nextOffset);
-    
+
     if (nextOffset >= filteredPokemon.length) {
-        setHasMore(false);
+      setHasMore(false);
     }
-  }, [offset, filteredPokemon]);
 
+    setIsLoading(false);
+  }, [offset, filteredPokemon, LIMIT, isLoading]);
 
-  // Scroll Listener
+  // IntersectionObserver to trigger loading when sentinel becomes visible
   useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
-        hasMore
-      ) {
-        loadNextBatch();
-      }
-    };
+    if (!loaderRef.current) return;
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loadNextBatch, hasMore]);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && hasMore && !isLoading) {
+          loadNextBatch();
+        }
+      });
+    }, { root: null, rootMargin: '500px', threshold: 0 }); // 500px buffer like your previous -500px check
 
+    observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [loadNextBatch, hasMore, isLoading]);
 
   return (
     <div className="pokedex-container">
@@ -270,9 +270,8 @@ function PostList() {
                     className="pokemon-img"
                     loading="lazy"
                     onError={(e) => { 
-                        // Fallback a imagen normal si el icono falla
                         e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`; 
-                        e.target.onerror = null; // Evitar bucle infinito
+                        e.target.onerror = null; 
                     }} 
                 />
               </div>
@@ -296,6 +295,9 @@ function PostList() {
           </Link>
         ))}
       </div>
+
+      {/* Sentinel observed by IntersectionObserver to trigger next load */}
+      <div ref={loaderRef} style={{ height: 1 }} />
 
       {/* Loaders */}
       {isLoading && <div className="loader">Cargando Pokédex...</div>}
