@@ -1,12 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom"; 
 import Greninja from '/src/images/Home_fondo/fons_pokemon.png'; 
+import { useTeams } from "../context/TeamsContext";
+import { useFavorites } from "../context/FavoritesContext";
+
 import './Home.css';
 
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [pokemonList, setPokemonList] = useState([]);
   const [dailyPokemon, setDailyPokemon] = useState(null);
+  const { teams } = useTeams();
+  const { favorites } = useFavorites();
+
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -89,13 +95,13 @@ function Home() {
       </h2>
 
       <div className="search-input-wrapper">
-          <input 
-            type="text" 
-            className="search-bar" 
-            placeholder="Buscar Pokémon..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <input 
+          type="text" 
+          className="search-bar" 
+          placeholder="Buscar Pokémon..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* LISTA DESPLEGABLE */}
@@ -112,7 +118,9 @@ function Home() {
                 />
                 <div className="search-item-text">
                   <span className="search-name">{p.name}</span>
-                  <span className="search-id">#{String(p.id).padStart(4, '0')}</span>
+                  <span className="search-id">
+                    #{String(p.id).padStart(4, '0')}
+                  </span>
                 </div>
               </Link>
             </li>
@@ -121,9 +129,9 @@ function Home() {
       )}
 
       {searchTerm && filteredList.length === 0 && (
-          <div className="search-dropdown empty">
-              <p>No se encontraron resultados.</p>
-          </div>
+        <div className="search-dropdown empty">
+          <p>No se encontraron resultados.</p>
+        </div>
       )}
     </div>
 
@@ -136,7 +144,9 @@ function Home() {
           <div className="daily-card">
             <div className="daily-info">
               <h3 className="daily-name">{dailyPokemon.name}</h3>
-              <span className="daily-id">Nº {String(dailyPokemon.id).padStart(4, "0")}</span>
+              <span className="daily-id">
+                Nº {String(dailyPokemon.id).padStart(4, "0")}
+              </span>
 
               <div className="daily-types">
                 {dailyPokemon.types.map(type => (
@@ -157,8 +167,109 @@ function Home() {
         </Link>
       </div>
     )}
+
+    <div className="daily-container">
+      <div className="favorites-header-home">
+         <h2 className="daily-title" style={{marginBottom:0}}>Mis Favoritos</h2>
+         {favorites.length > 0 && (
+             <Link to="/favorits" className="see-all-link">Ver todo</Link>
+         )}
+      </div>
+
+      {favorites.length === 0 ? (
+        // ESTADO VACÍO (Igual que FavoritesPage pero adaptado a Home)
+        <div className="empty-fav-home">
+           <p>No tienes favoritos aún.</p>
+           <Link to="/PostList" className="empty-link-home">¡Busca en la Pokédex!</Link>
+        </div>
+      ) : (
+        // GRID DE FAVORITOS 
+        <div className="fav-home-grid">
+           {favorites.slice(0, 3).map((poke) => {
+              const imgUrl = poke.sprites?.other?.["official-artwork"]?.front_default 
+                          || poke.sprites?.front_default 
+                          || poke.sprite;
+              
+              return (
+                <Link to={`/PostDetail/${poke.id}`} key={poke.id} className="fav-home-card">
+                   <div className="fav-home-img-wrapper">
+                      <img src={imgUrl} alt={poke.name} />
+                   </div>
+                   <span className="fav-home-name">{poke.name}</span>
+                   <span className="fav-home-id">#{String(poke.id).padStart(4, '0')}</span>
+                </Link>
+              );
+           })}
+        </div>
+      )}
+    </div>
+
+   {/* EQUIPOS */}
+{teams.length > 0 && (
+  <div className="daily-container">
+
+    <div className="favorites-header-home">
+      <h2 className="daily-title" style={{ marginBottom: 0 }}>
+        Mis Equipos
+      </h2>
+
+      {teams.length > 3 && (
+        <Link to="/Teams" className="see-all-link">
+          Ver todos
+        </Link>
+      )}
+    </div>
+
+    {/* CONTENEDOR PARA SEPARAR EQUIPOS */}
+    <div className="teams-preview-list">
+      {teams.slice(0, 3).map((team) => (
+        <Link
+          key={team.id}
+          to="/Teams"
+          className="daily-card-link"
+        >
+          <div className="daily-card">
+            <div className="daily-info">
+              <h3 className="daily-name">{team.name}</h3>
+              <span className="daily-id">
+                {team.slots.filter(Boolean).length} / 6 Pokémon
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 6
+              }}
+            >
+              {team.slots.map((pokemon, index) => (
+                <div key={index} style={{ width: 32, height: 32 }}>
+                  {pokemon && (
+                    <img
+                      src={
+                        pokemon.sprites?.versions?.["generation-viii"]?.icons?.front_default ||
+                        pokemon.sprite
+                      }
+                      alt={pokemon.name}
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+
+  </div>
+)}
+
+
   </div>
 );
+
 
 }
 
